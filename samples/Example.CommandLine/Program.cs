@@ -1,80 +1,34 @@
 ﻿using SpiDriver;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
+using Radio.Nordic;
 
 namespace Example.CommandLine
 {
-    public enum COMMNAND : byte
-    {
-        READ = 0b00000000,
-        WRITE = 0b00100000,
-    }
     unsafe class Program
     {
         static Device device;
 
         static void Main(string[] argv)
         {
-            byte[] read_status = new byte[] { 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-            device = new Device("COM7");
-            device.Connect();
-            SetCSHigh();
-            SetCELow();
+            NRF24L01P nrf = new NRF24L01P("COM7");
 
-            var cfg = ReadRegister<CONFIG>();
-            var ena = ReadRegister<EN_AA>();
+            nrf.Connect();
 
-            ena.ENAA_P1 = false;
+            nrf.SetCSHigh();
+            nrf.SetCELow();
 
-            WriteRegister(ena);
+            var config = nrf.ReadRegister<CONFIG>();
+            var en_aa = nrf.ReadRegister<EN_AA>();
 
-            ena = ReadRegister<EN_AA>();
+            en_aa.ENAA_P1 = false;
 
-            var add = ReadRegister<RX_ADDR_P0>();
+            nrf.WriteRegister(en_aa);
 
+            en_aa = nrf.ReadRegister<EN_AA>();
+
+            var rx_addr_p0 = nrf.ReadRegister<RX_ADDR_P0>();
+            var rx_addr_p1 = nrf.ReadRegister<RX_ADDR_P1>();
         }
 
-        static T ReadRegister<T>() where T : REGISTER , new()
-        {
-            T register = new T();
-            SetCSLow();
-            device.Write(new byte[] { (byte)((byte)COMMNAND.READ | register.type) }, 0, 1);
-            device.Read(register.register, 0, register.length);
-            SetCSHigh();
-            return register;
-        }
-
-        static void WriteRegister<T>(T register) where T : REGISTER
-        {
-            SetCSLow();
-            device.Write(new byte[] { (byte)((byte)COMMNAND.WRITE | register.type) }, 0, register.length);
-            device.Write(register.register, 0, 1);
-            SetCSHigh();
-        }
-
-        static void SetCSLow()
-        {
-            device.SetOutput(Output.CS, true);
-        }
-
-        static void SetCSHigh()
-        {
-            device.SetOutput(Output.CS, false);
-
-        }
-
-        static void SetCELow()
-        {
-            device.SetOutput(Output.A, false);
-        }
-
-        static void SetCEHigh()
-        {
-            device.SetOutput(Output.A, true);
-
-        }
 
 
 
