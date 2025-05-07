@@ -6,7 +6,12 @@ using System.Threading;
 
 namespace Example.CommandLine
 {
-    class Program
+    public enum COMMNAND : byte
+    {
+        READ = 0b00000000,
+        WRITE = 0b00100000,
+    }
+    unsafe class Program
     {
         static Device device;
 
@@ -18,30 +23,36 @@ namespace Example.CommandLine
             SetCSHigh();
             SetCELow();
 
-            var cfg = ReadCONFIG();
-            var ena = ReadENAA();
+            var cfg = ReadRegister<CONFIG>();
+            var ena = ReadRegister<EN_AA>();
+
+            ena.ENAA_P1 = false;
+
+            WriteRegister(ena);
+
+            ena = ReadRegister<EN_AA>();
+
+            var add = ReadRegister<RX_ADDR_P0>();
+
         }
 
-        static CONFIG ReadCONFIG()
+        static T ReadRegister<T>() where T : REGISTER , new()
         {
-            CONFIG config = new CONFIG();
+            T register = new T();
             SetCSLow();
-            device.Write(new byte[] { 0x00}, 0, 1);
-            device.Read(config.Buffer, 0, 1);
+            device.Write(new byte[] { (byte)((byte)COMMNAND.READ | register.type) }, 0, 1);
+            device.Read(register.register, 0, register.length);
             SetCSHigh();
-            return config;
+            return register;
         }
 
-        static byte ReadENAA()
+        static void WriteRegister<T>(T register) where T : REGISTER
         {
-            byte[] buffer = new byte[4];
             SetCSLow();
-            device.Write(new byte[] { 0x01 }, 0, 1);
-            device.Read(buffer, 0, 1);
+            device.Write(new byte[] { (byte)((byte)COMMNAND.WRITE | register.type) }, 0, register.length);
+            device.Write(register.register, 0, 1);
             SetCSHigh();
-            return buffer[0];
         }
-
 
         static void SetCSLow()
         {
