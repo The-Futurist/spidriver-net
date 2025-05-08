@@ -5,16 +5,14 @@ namespace Example.CommandLine
 {
     unsafe class Program
     {
-        static Device device;
-
         static void Main(string[] argv)
         {
             NRF24L01P nrf = new NRF24L01P("COM7");
 
-            nrf.Connect();
+            nrf.ConnectUSB();
 
-            nrf.SetCSHigh();
-            nrf.SetCELow();
+            nrf.CS = Pin.High;
+            nrf.CE = Pin.Low;
 
             var config = nrf.ReadRegister<CONFIG>();
             var en_aa = nrf.ReadRegister<EN_AA>();

@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace Radio.Nordic
 {
+    public enum Pin
+    {
+        Low,
+        High
+    }
     public class NRF24L01P
     {
         private Device device;
@@ -16,7 +21,7 @@ namespace Radio.Nordic
             this.device = new Device(comport);
         }
 
-        public void Connect()
+        public void ConnectUSB()
         {
             device.Connect();
         }
@@ -25,7 +30,7 @@ namespace Radio.Nordic
         {
             T register = new T();
             SetCSLow();
-            device.Write(new byte[] { (byte)((byte)COMMNAND.READ | register.id) }, 0, 1);
+            device.Write(new byte[] { (byte)((byte)COMMNAND.R_REGISTER | register.id) }, 0, 1);
             device.Read(register.register, 0, register.length);
             SetCSHigh();
             return register;
@@ -34,10 +39,27 @@ namespace Radio.Nordic
         public void WriteRegister<T>(T register) where T : REGISTER
         {
             SetCSLow();
-            device.Write(new byte[] { (byte)((byte)COMMNAND.WRITE | register.id) }, 0, register.length);
+            device.Write(new byte[] { (byte)((byte)COMMNAND.W_REGISTER | register.id) }, 0, register.length);
             device.Write(register.register, 0, 1);
             SetCSHigh();
         }
+
+        public Pin CS
+        {
+            set
+            {
+                device.SetOutput(Output.CS, value == Pin.Low? true:false);
+            }
+        }
+
+        public Pin CE
+        {
+            set
+            {
+                device.SetOutput(Output.CS, value == Pin.Low ? false : true);
+            }
+        }
+
 
         public void SetCSLow()
         {
@@ -62,8 +84,17 @@ namespace Radio.Nordic
 
     public enum COMMNAND : byte
     {
-        READ = 0b00000000,
-        WRITE = 0b00100000,
+        R_REGISTER = 0b0000_0000,
+        W_REGISTER = 0b0010_0000,
+        R_RX_PAYLOAD = 0b0110_0001,
+        W_TX_PAYLOAD = 0b1010_0000,
+        FLUSH_TX = 0b1110_0001,
+        FLUSH_RX = 0b1110_0010,
+        REUSE_TX_PL = 0b1110_0011,
+        R_RX_PL_WID = 0b0110_0000,
+        W_ACK_PAYLOAD = 0b1010_1000,
+        W_TX_PAYLOAD_NO_ACK = 0b1011_0000,
+        NOP = 0b11111111,
     }
 
     public abstract class REGISTER
