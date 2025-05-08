@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management;
 using System.Text;
 using System.Threading.Tasks;
 using static Radio.Nordic.Literals;
@@ -28,6 +29,23 @@ namespace Radio.Nordic
             device.Connect();
             CS = Pin.High;
             CE = Pin.Low;
+        }
+
+        public static string GetNrfComPort()
+        {
+            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'"))
+            {
+                foreach (var obj in searcher.Get())
+                {
+                    if (obj["Manufacturer"].ToString() == "FTDI")
+                    {
+                        var s = obj["Name"].ToString().Split(new char[] { '(', ')' }, 10);
+                        return s[1];
+                    }
+                }
+            }
+
+            return null;
         }
 
         public T ReadRegister<T>() where T : REGISTER, new()
@@ -97,7 +115,7 @@ namespace Radio.Nordic
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
                 device.Close();
-                device.Dispose();
+                //device.Dispose();
                 disposedValue = true;
             }
         }
@@ -1075,17 +1093,17 @@ namespace Radio.Nordic
         {
             get
             {
-                return (Register[0] & 0x01) != 0;
+                return (Register[0] & BIT(0)) != 0;
             }
             set
             {
                 if (value)
                 {
-                    Register[0] |= 0x01;
+                    Register[0] |= BIT(0);
                 }
                 else
                 {
-                    Register[0] &= 0xFE;
+                    Register[0] &= NBYTE(BIT(0));
                 }
             }
         }
@@ -1093,17 +1111,89 @@ namespace Radio.Nordic
         {
             get
             {
-                return (Register[0] & 0x02) != 0;
+                return (Register[0] & BIT(1)) != 0;
             }
             set
             {
                 if (value)
                 {
-                    Register[0] |= 0x02;
+                    Register[0] |= BIT(1);
                 }
                 else
                 {
-                    Register[0] &= 0xFD;
+                    Register[0] &= NBYTE(BIT(1));
+                }
+            }
+        }
+        public bool DPL_P2
+        {
+            get
+            {
+                return (Register[0] & BIT(2)) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= BIT(2);
+                }
+                else
+                {
+                    Register[0] &= NBYTE(BIT(2));
+                }
+            }
+        }
+        public bool DPL_P3
+        {
+            get
+            {
+                return (Register[0] & BIT(3)) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= BIT(3);
+                }
+                else
+                {
+                    Register[0] &= NBYTE(BIT(3));
+                }
+            }
+        }
+        public bool DPL_P4
+        {
+            get
+            {
+                return (Register[0] & BIT(4)) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= BIT(4);
+                }
+                else
+                {
+                    Register[0] &= NBYTE(BIT(4));
+                }
+            }
+        }
+        public bool DPL_P5
+        {
+            get
+            {
+                return (Register[0] & BIT(5)) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= BIT(5);
+                }
+                else
+                {
+                    Register[0] &= NBYTE(BIT(5));
                 }
             }
         }
@@ -1114,21 +1204,21 @@ namespace Radio.Nordic
         {
             Id = 0x1D;
         }
-        public bool EN_DPL
+        public bool EN_DYN_ACK
         {
             get
             {
-                return (Register[0] & 0x04) != 0;
+                return (Register[0] & BIT(0)) != 0;
             }
             set
             {
                 if (value)
                 {
-                    Register[0] |= 0x04;
+                    Register[0] |= BIT(0);
                 }
                 else
                 {
-                    Register[0] &= 0xFB;
+                    Register[0] &= NBYTE(BIT(0));
                 }
             }
         }
@@ -1136,17 +1226,35 @@ namespace Radio.Nordic
         {
             get
             {
-                return (Register[0] & 0x02) != 0;
+                return (Register[0] & BIT(1)) != 0;
             }
             set
             {
                 if (value)
                 {
-                    Register[0] |= 0x02;
+                    Register[0] |= BIT(1);
                 }
                 else
                 {
-                    Register[0] &= 0xFD;
+                    Register[0] &= NBYTE(BIT(1));
+                }
+            }
+        }
+        public bool EN_DPL
+        {
+            get
+            {
+                return (Register[0] & BIT(2)) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= BIT(2);
+                }
+                else
+                {
+                    Register[0] &= NBYTE(BIT(2));
                 }
             }
         }

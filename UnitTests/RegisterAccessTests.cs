@@ -6,11 +6,13 @@ namespace UnitTests
     [TestClass]
     public sealed class RegisterAccessTests
     {
+        public static string PORT = NRF24L01P.GetNrfComPort();
+
         [TestMethod]
         [DoNotParallelize]
         public void ConnectTest()
         {
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
         }
 
@@ -20,7 +22,7 @@ namespace UnitTests
         {
             CONFIG restore, changed;
 
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
 
             nrf.ConnectUSB();
 
@@ -64,7 +66,7 @@ namespace UnitTests
         public void EN_AA()
         {
             EN_AA restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<EN_AA>();
             changed = nrf.ReadRegister<EN_AA>();
@@ -96,7 +98,7 @@ namespace UnitTests
         public void RX_ADDR_P0()
         {
             RX_ADDR_P0 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_ADDR_P0>();
             changed = nrf.ReadRegister<RX_ADDR_P0>();
@@ -117,7 +119,7 @@ namespace UnitTests
         public void RX_ADDR_P1()
         {
             RX_ADDR_P1 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_ADDR_P1>();
             changed = nrf.ReadRegister<RX_ADDR_P1>();
@@ -138,7 +140,7 @@ namespace UnitTests
         public void RX_ADDR_P2()
         {
             RX_ADDR_P2 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_ADDR_P2>();
             changed = nrf.ReadRegister<RX_ADDR_P2>();
@@ -155,7 +157,7 @@ namespace UnitTests
         public void RX_ADDR_P3()
         {
             RX_ADDR_P3 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_ADDR_P3>();
             changed = nrf.ReadRegister<RX_ADDR_P3>();
@@ -172,7 +174,7 @@ namespace UnitTests
         public void RX_ADDR_P4()
         {
             RX_ADDR_P4 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_ADDR_P4>();
             changed = nrf.ReadRegister<RX_ADDR_P4>();
@@ -189,7 +191,7 @@ namespace UnitTests
         public void RX_ADDR_P5()
         {
             RX_ADDR_P5 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_ADDR_P5>();
             changed = nrf.ReadRegister<RX_ADDR_P5>();
@@ -206,7 +208,7 @@ namespace UnitTests
         public void TX_ADDR()
         {
             TX_ADDR restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<TX_ADDR>();
             changed = nrf.ReadRegister<TX_ADDR>();
@@ -227,7 +229,7 @@ namespace UnitTests
         public void RX_PW_P0()
         {
             RX_PW_P0 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_PW_P0>();
             changed = nrf.ReadRegister<RX_PW_P0>();
@@ -239,13 +241,12 @@ namespace UnitTests
             changed = nrf.ReadRegister<RX_PW_P0>();
             Assert.IsTrue(changed.RX_PW == restore.RX_PW);  // must be equal
         }
-
         [TestMethod]
         [DoNotParallelize]
         public void RX_PW_P1()
         {
             RX_PW_P1 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_PW_P1>();
             changed = nrf.ReadRegister<RX_PW_P1>();
@@ -262,7 +263,7 @@ namespace UnitTests
         public void RX_PW_P2()
         {
             RX_PW_P2 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_PW_P2>();
             changed = nrf.ReadRegister<RX_PW_P2>();
@@ -279,7 +280,7 @@ namespace UnitTests
         public void RX_PW_P3()
         {
             RX_PW_P3 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_PW_P3>();
             changed = nrf.ReadRegister<RX_PW_P3>();
@@ -296,7 +297,7 @@ namespace UnitTests
         public void RX_PW_P4()
         {
             RX_PW_P4 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_PW_P4>();
             changed = nrf.ReadRegister<RX_PW_P4>();
@@ -313,7 +314,7 @@ namespace UnitTests
         public void RX_PW_P5()
         {
             RX_PW_P5 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_PW_P5>();
             changed = nrf.ReadRegister<RX_PW_P5>();
@@ -325,13 +326,44 @@ namespace UnitTests
             changed = nrf.ReadRegister<RX_PW_P5>();
             Assert.IsTrue(changed.RX_PW == restore.RX_PW);  // must be equal
         }
-
+        [TestMethod]
+        [DoNotParallelize]
+        public void DYNPD()
+        {
+            DYNPD restore, changed;
+            using NRF24L01P nrf = new NRF24L01P(PORT);
+            nrf.ConnectUSB();
+            restore = nrf.ReadRegister<DYNPD>();
+            changed = nrf.ReadRegister<DYNPD>();
+            changed.DPL_P0 = !restore.DPL_P0;
+            changed.DPL_P1 = !restore.DPL_P1;
+            changed.DPL_P2 = !restore.DPL_P2;
+            changed.DPL_P3 = !restore.DPL_P3;
+            changed.DPL_P4 = !restore.DPL_P4;
+            changed.DPL_P5 = !restore.DPL_P5;
+            nrf.WriteRegister(changed);
+            changed = nrf.ReadRegister<DYNPD>();
+            Assert.AreNotEqual(changed.DPL_P0, restore.DPL_P0);
+            Assert.AreNotEqual(changed.DPL_P1, restore.DPL_P1);
+            Assert.AreNotEqual(changed.DPL_P2, restore.DPL_P2);
+            Assert.AreNotEqual(changed.DPL_P3, restore.DPL_P3);
+            Assert.AreNotEqual(changed.DPL_P4, restore.DPL_P4);
+            Assert.AreNotEqual(changed.DPL_P5, restore.DPL_P5);
+            nrf.WriteRegister(restore);
+            changed = nrf.ReadRegister<DYNPD>();
+            Assert.AreEqual(changed.DPL_P0, restore.DPL_P0);
+            Assert.AreEqual(changed.DPL_P1, restore.DPL_P1);
+            Assert.AreEqual(changed.DPL_P2, restore.DPL_P2);
+            Assert.AreEqual(changed.DPL_P3, restore.DPL_P3);
+            Assert.AreEqual(changed.DPL_P4, restore.DPL_P4);
+            Assert.AreEqual(changed.DPL_P5, restore.DPL_P5);
+        }
         [TestMethod]
         [DoNotParallelize]
         public void SETUP_AW()
         {
             SETUP_AW restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<SETUP_AW>();
             changed = nrf.ReadRegister<SETUP_AW>();
@@ -348,7 +380,7 @@ namespace UnitTests
         public void SETUP_RETR()
         {
             SETUP_RETR restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<SETUP_RETR>();
             changed = nrf.ReadRegister<SETUP_RETR>();
@@ -368,7 +400,7 @@ namespace UnitTests
         public void RF_CH()
         {
             RF_CH restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RF_CH>();
             changed = nrf.ReadRegister<RF_CH>();
@@ -385,7 +417,7 @@ namespace UnitTests
         public void RF_SETUP()
         {
             RF_SETUP restore, changed;
-            using NRF24L01P nrf = new NRF24L01P("COM7");
+            using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RF_SETUP>();
             changed = nrf.ReadRegister<RF_SETUP>();
@@ -410,6 +442,29 @@ namespace UnitTests
             Assert.AreEqual(changed.RF_DR_HIGH, restore.RF_DR_HIGH);
             Assert.AreEqual(changed.RF_PWR, restore.RF_PWR);
 
+        }
+        [TestMethod]
+        [DoNotParallelize]
+        public void FEATURE()
+        {
+            FEATURE restore, changed;
+            using NRF24L01P nrf = new NRF24L01P(PORT);
+            nrf.ConnectUSB();
+            restore = nrf.ReadRegister<FEATURE>();
+            changed = nrf.ReadRegister<FEATURE>();
+            changed.EN_DPL = !restore.EN_DPL;
+            changed.EN_ACK_PAY = !restore.EN_ACK_PAY;
+            changed.EN_DYN_ACK = !restore.EN_DYN_ACK;
+            nrf.WriteRegister(changed);
+            changed = nrf.ReadRegister<FEATURE>();
+            Assert.AreNotEqual(changed.EN_DPL, restore.EN_DPL);
+            Assert.AreNotEqual(changed.EN_ACK_PAY, restore.EN_ACK_PAY);
+            Assert.AreNotEqual(changed.EN_DYN_ACK, restore.EN_DYN_ACK);
+            nrf.WriteRegister(restore);
+            changed = nrf.ReadRegister<FEATURE>();
+            Assert.AreEqual(changed.EN_DPL, restore.EN_DPL);
+            Assert.AreEqual(changed.EN_ACK_PAY, restore.EN_ACK_PAY);
+            Assert.AreEqual(changed.EN_DYN_ACK, restore.EN_DYN_ACK);
         }
     }
 

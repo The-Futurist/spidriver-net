@@ -1,4 +1,5 @@
 ﻿using Radio.Nordic;
+using System.Management;
 
 namespace Sandbox
 {
@@ -6,13 +7,15 @@ namespace Sandbox
     {
         static void Main(string[] argv)
         {
+            var port = NRF24L01P.GetNrfComPort();
+
             byte reg = 0; 
             
             
             reg &= (byte)0xBF;
 
 
-            using (NRF24L01P nrf = new NRF24L01P("COM7"))
+            using (NRF24L01P nrf = new NRF24L01P(port))
             {
                 nrf.ConnectUSB();
 
@@ -33,7 +36,7 @@ namespace Sandbox
 
             }
 
-            using (NRF24L01P nrf = new NRF24L01P("COM7"))
+            using (NRF24L01P nrf = new NRF24L01P(port))
             {
                 nrf.ConnectUSB();
 
@@ -56,7 +59,6 @@ namespace Sandbox
 
 
         }
-
 
     }
 }
