@@ -12,10 +12,11 @@ namespace SpiDriver
     /// <summary>
     /// Provides functionality to communicate with SPIDriver devices.
     /// </summary>
-    public class Device
+    public class Device : IDisposable
     {
         internal SerialPort _port;
         private SemaphoreSlim _portSemaphore = new SemaphoreSlim(1, 1);
+        private bool disposedValue;
 
         /// <summary>
         /// Gets or sets the read timeout, the default is infinite.
@@ -538,6 +539,35 @@ namespace SpiDriver
         /// <param name="portName">The port name.</param>
         public Device(string portName) {
             _port = new SerialPort(portName, 460800, Parity.None, 8, StopBits.One);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _port.Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~Device()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

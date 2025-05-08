@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Radio.Nordic.Literals;
 
 namespace Radio.Nordic
 {
@@ -12,9 +13,10 @@ namespace Radio.Nordic
         Low,
         High
     }
-    public class NRF24L01P
+    public class NRF24L01P  : IDisposable
     {
         private Device device;
+        private bool disposedValue;
 
         public NRF24L01P(string comport)
         {
@@ -24,14 +26,16 @@ namespace Radio.Nordic
         public void ConnectUSB()
         {
             device.Connect();
+            CS = Pin.High;
+            CE = Pin.Low;
         }
 
         public T ReadRegister<T>() where T : REGISTER, new()
         {
             T register = new T();
             SetCSLow();
-            device.Write(new byte[] { (byte)((byte)COMMNAND.R_REGISTER | register.id) }, 0, 1);
-            device.Read(register.register, 0, register.length);
+            device.Write(new byte[] { (byte)((byte)COMMNAND.R_REGISTER | register.Id) }, 0, 1);
+            device.Read(register.Register, 0, register.Length);
             SetCSHigh();
             return register;
         }
@@ -39,8 +43,8 @@ namespace Radio.Nordic
         public void WriteRegister<T>(T register) where T : REGISTER
         {
             SetCSLow();
-            device.Write(new byte[] { (byte)((byte)COMMNAND.W_REGISTER | register.id) }, 0, register.length);
-            device.Write(register.register, 0, 1);
+            device.Write(new byte[] { (byte)((byte)COMMNAND.W_REGISTER | register.Id) }, 0, 1);
+            device.Write(register.Register, 0, register.Length);
             SetCSHigh();
         }
 
@@ -80,6 +84,37 @@ namespace Radio.Nordic
         {
             device.SetOutput(Output.A, true);
         }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                device.Close();
+                device.Dispose();
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~NRF24L01P()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 
     public enum COMMNAND : byte
@@ -99,25 +134,28 @@ namespace Radio.Nordic
 
     public abstract class REGISTER
     {
-        public byte[] register;
-        public byte id;
-        public int length;
+        private byte[] register;
+        private byte id;
+        private int length;
 
+        public byte[] Register { get => register; protected set => register = value; }
+        public byte Id { get => id; protected set => id = value; }
+        public int Length { get => length; protected set => length = value; }
     }
     public abstract class REGISTER_SHORT : REGISTER
     {
         public REGISTER_SHORT()
         {
-            register = new byte[1];
-            length = 1;
+            Register = new byte[1];
+            Length = 1;
         }
     }
     public abstract class REGISTER_LONG : REGISTER
     {
         public REGISTER_LONG()
         {
-            register = new byte[5];
-            length = 5;
+            Register = new byte[5];
+            Length = 5;
         }
     }
     public class CONFIG : REGISTER_SHORT
@@ -125,13 +163,13 @@ namespace Radio.Nordic
 
         public CONFIG()
         {
-            id = 0;
+            Id = 0;
         }
         public bool RESERVED
         {
             get
             {
-                return (register[0] & 0x80) != 0;
+                return (Register[0] & 0x80) != 0;
             }
         }
 
@@ -139,7 +177,18 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x40) != 0;
+                return (Register[0] & 0x40) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= 0x40;
+                }
+                else
+                {
+                    Register[0] &= 0xBF;
+                }
             }
         }
 
@@ -147,7 +196,18 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x20) != 0;
+                return (Register[0] & 0x20) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= 0x20;
+                }
+                else
+                {
+                    Register[0] &= 0xDF;
+                }
             }
         }
 
@@ -155,15 +215,37 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x10) != 0;
+                return (Register[0] & 0x10) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= 0x10;
+                }
+                else
+                {
+                    Register[0] &= 0xEF;
+                }
             }
         }
 
-        public bool MASK_EN_CRC
+        public bool EN_CRC
         {
             get
             {
-                return (register[0] & 0x08) != 0;
+                return (Register[0] & 0x08) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= 0x08;
+                }
+                else
+                {
+                    Register[0] &= 0xF7;
+                }
             }
         }
 
@@ -171,7 +253,18 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x04) != 0;
+                return (Register[0] & 0x04) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= 0x04;
+                }
+                else
+                {
+                    Register[0] &= 0xFB;
+                }
             }
         }
 
@@ -179,7 +272,18 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x02) != 0;
+                return (Register[0] & 0x02) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= 0x02;
+                }
+                else
+                {
+                    Register[0] &= 0xFD;
+                }
             }
         }
 
@@ -187,37 +291,48 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x01) != 0;
+                return (Register[0] & 0x01) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= 0x01;
+                }
+                else
+                {
+                    Register[0] &= 0xFE;
+                }
             }
         }
 
         public override string ToString()
         {
-            return $"MASK_RX_DR={MASK_RX_DR} MASK_TX_DS={MASK_TX_DS} MASK_MAX_RT={MASK_MAX_RT} MASK_EN_CRC={MASK_EN_CRC} CRCO={CRCO} PWR_UP={PWR_UP} PRIM_RX={PRIM_RX}";
+            return $"MASK_RX_DR={MASK_RX_DR} MASK_TX_DS={MASK_TX_DS} MASK_MAX_RT={MASK_MAX_RT} MASK_EN_CRC={EN_CRC} CRCO={CRCO} PWR_UP={PWR_UP} PRIM_RX={PRIM_RX}";
         }
     }
     public class EN_AA : REGISTER_SHORT
     {
         public EN_AA()
         {
-            id = 1;
+            Id = 1;
         }
         public bool ENAA_P0
         {
             get
             {
-                return (register[0] & 0x01) != 0;
+                return (Register[0] & 0x01) != 0;
             }
 
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x01;
+                    Register[0] |= 0x01;
                 }
                 else
                 {
-                    register[0] &= 0xFE;
+                    Register[0] &= 0xFE;
                 }
             }
 
@@ -226,18 +341,18 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x02) != 0;
+                return (Register[0] & 0x02) != 0;
             }
 
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x02;
+                    Register[0] |= 0x02;
                 }
                 else
                 {
-                    register[0] &= 0xFD;
+                    Register[0] &= 0xFD;
                 }
             }
         }
@@ -245,18 +360,18 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x04) != 0;
+                return (Register[0] & 0x04) != 0;
             }
 
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x04;
+                    Register[0] |= 0x04;
                 }
                 else
                 {
-                    register[0] &= 0xFB;
+                    Register[0] &= 0xFB;
                 }
             }
         }
@@ -264,18 +379,18 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x08) != 0;
+                return (Register[0] & 0x08) != 0;
             }
 
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x08;
+                    Register[0] |= 0x08;
                 }
                 else
                 {
-                    register[0] &= 0xF7;
+                    Register[0] &= 0xF7;
                 }
             }
         }
@@ -283,17 +398,17 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x10) != 0;
+                return (Register[0] & 0x10) != 0;
             }
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x10;
+                    Register[0] |= 0x10;
                 }
                 else
                 {
-                    register[0] &= 0xEF;
+                    Register[0] &= 0xEF;
                 }
             }
         }
@@ -301,17 +416,17 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x20) != 0;
+                return (Register[0] & 0x20) != 0;
             }
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x20;
+                    Register[0] |= 0x20;
                 }
                 else
                 {
-                    register[0] &= 0xDF;
+                    Register[0] &= 0xDF;
                 }
             }
         }
@@ -321,23 +436,23 @@ namespace Radio.Nordic
     {
         public EN_RXADDR()
         {
-            id = 2;
+            Id = 2;
         }
         public bool ERX_P0
         {
             get
             {
-                return (register[0] & 0x01) != 0;
+                return (Register[0] & 0x01) != 0;
             }
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x01;
+                    Register[0] |= 0x01;
                 }
                 else
                 {
-                    register[0] &= 0xFE;
+                    Register[0] &= 0xFE;
                 }
             }
         }
@@ -346,17 +461,17 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x02) != 0;
+                return (Register[0] & 0x02) != 0;
             }
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x02;
+                    Register[0] |= 0x02;
                 }
                 else
                 {
-                    register[0] &= 0xFD;
+                    Register[0] &= 0xFD;
                 }
             }
         }
@@ -365,17 +480,17 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x04) != 0;
+                return (Register[0] & 0x04) != 0;
             }
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x04;
+                    Register[0] |= 0x04;
                 }
                 else
                 {
-                    register[0] &= 0xFB;
+                    Register[0] &= 0xFB;
                 }
             }
         }
@@ -384,17 +499,17 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x08) != 0;
+                return (Register[0] & 0x08) != 0;
             }
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x08;
+                    Register[0] |= 0x08;
                 }
                 else
                 {
-                    register[0] &= 0xF7;
+                    Register[0] &= 0xF7;
                 }
             }
         }
@@ -403,17 +518,17 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x10) != 0;
+                return (Register[0] & 0x10) != 0;
             }
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x10;
+                    Register[0] |= 0x10;
                 }
                 else
                 {
-                    register[0] &= 0xEF;
+                    Register[0] &= 0xEF;
                 }
             }
         }
@@ -422,17 +537,17 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x20) != 0;
+                return (Register[0] & 0x20) != 0;
             }
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x20;
+                    Register[0] |= 0x20;
                 }
                 else
                 {
-                    register[0] &= 0xDF;
+                    Register[0] &= 0xDF;
                 }
             }
         }
@@ -441,18 +556,18 @@ namespace Radio.Nordic
     {
         public SETUP_AW()
         {
-            id = 3;
+            Id = 3;
         }
-        public byte SETUP_AW_0
+        public byte AW
         {
             get
             {
-                return (byte)(register[0] & 0x03);
+                return (byte)(Register[0] & 0x03);
             }
             set
             {
-                register[0] &= 0xFC;
-                register[0] |= (byte)(value & 0x03);
+                Register[0] &= 0xFC;
+                Register[0] |= (byte)(value & 0x03);
             }
         }
     }
@@ -460,30 +575,30 @@ namespace Radio.Nordic
     {
         public SETUP_RETR()
         {
-            id = 4;
+            Id = 4;
         }
         public byte ARD
         {
             get
             {
-                return (byte)((register[0] & 0xF0) >> 4);
+                return (byte)((Register[0] & 0xF0) >> 4);
             }
             set
             {
-                register[0] &= 0x0F;
-                register[0] |= (byte)((value & 0x0F) << 4);
+                Register[0] &= 0x0F;
+                Register[0] |= (byte)((value & 0x0F) << 4);
             }
         }
         public byte ARC
         {
             get
             {
-                return (byte)(register[0] & 0x0F);
+                return (byte)(Register[0] & 0x0F);
             }
             set
             {
-                register[0] &= 0xF0;
-                register[0] |= (byte)(value & 0x0F);
+                Register[0] &= 0xF0;
+                Register[0] |= (byte)(value & 0x0F);
             }
         }
     }
@@ -491,17 +606,17 @@ namespace Radio.Nordic
     {
         public RF_CH()
         {
-            id = 5;
+            Id = 5;
         }
-        public byte RF_CH_0
+        public byte CH
         {
             get
             {
-                return register[0];
+                return Register[0];
             }
             set
             {
-                register[0] = value;
+                Register[0] = value;
             }
         }
     }
@@ -509,25 +624,92 @@ namespace Radio.Nordic
     {
         public RF_SETUP()
         {
-            id = 6;
+            Id = 6;
+        }
+
+        public bool CONT_WAVE
+        {
+            get
+            {
+                return (Register[0] & BIT(7)) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= BIT(7);
+                }
+                else
+                {
+                    Register[0] &= NBYTE(BIT(7));
+                }
+            }
+
+        }
+        public bool RF_DR_LOW
+        {
+            get
+            {
+                return (Register[0] & BIT(5)) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= BIT(5);
+                }
+                else
+                {
+                    Register[0] &= NBYTE(BIT(5));
+                }
+            }
+        }
+        public bool PLL_LOCK
+        {
+            get
+            {
+                return (Register[0] & BIT(4)) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= BIT(4);
+                }
+                else
+                {
+                    Register[0] &= NBYTE(BIT(4));
+                }
+            }
+        }
+        public bool RF_DR_HIGH
+        {
+            get
+            {
+                return (Register[0] & BIT(3)) != 0;
+            }
+            set
+            {
+                if (value)
+                {
+                    Register[0] |= BIT(3);
+                }
+                else
+                {
+                    Register[0] &= NBYTE(BIT(3));
+                }
+            }
         }
         public byte RF_PWR
         {
             get
             {
-                return (byte)((register[0] & 0x06) >> 1);
+                return (byte)((Register[0] & 0x06) >> 1);
             }
             set
             {
-                register[0] &= 0xF9;
-                register[0] |= (byte)((value & 0x03) << 1);
-            }
-        }
-        public bool LNA_HCURR
-        {
-            get
-            {
-                return (register[0] & 0x01) != 0;
+                Register[0] &= 0xF9;
+                Register[0] |= (byte)((value & 0x03) << 1);
             }
         }
     }
@@ -535,34 +717,34 @@ namespace Radio.Nordic
     {
         public STATUS()
         {
-            id = 7;
+            Id = 7;
         }
         public bool RX_DR
         {
             get
             {
-                return (register[0] & 0x40) != 0;
+                return (Register[0] & 0x40) != 0;
             }
         }
         public bool TX_DS
         {
             get
             {
-                return (register[0] & 0x20) != 0;
+                return (Register[0] & 0x20) != 0;
             }
         }
         public bool MAX_RT
         {
             get
             {
-                return (register[0] & 0x10) != 0;
+                return (Register[0] & 0x10) != 0;
             }
         }
         public byte RX_P_NO
         {
             get
             {
-                return (byte)((register[0] & 0x0E) >> 1);
+                return (byte)((Register[0] & 0x0E) >> 1);
             }
         }
     }
@@ -570,20 +752,20 @@ namespace Radio.Nordic
     {
         public OBSERVE_TX()
         {
-            id = 9;
+            Id = 9;
         }
         public byte PLOS_CNT
         {
             get
             {
-                return (byte)((register[0] & 0xF0) >> 4);
+                return (byte)((Register[0] & 0xF0) >> 4);
             }
         }
         public byte ARC_CNT
         {
             get
             {
-                return (byte)(register[0] & 0x0F);
+                return (byte)(Register[0] & 0x0F);
             }
         }
     }
@@ -591,13 +773,13 @@ namespace Radio.Nordic
     {
         public RPD()
         {
-            id = 0x09;
+            Id = 0x09;
         }
         public bool CD_0
         {
             get
             {
-                return (register[0] & 0x01) != 0;
+                return (Register[0] & 0x01) != 0;
             }
         }
     }
@@ -606,17 +788,17 @@ namespace Radio.Nordic
 
         public RX_ADDR_P0()
         {
-            id = 0x0A;
+            Id = 0x0A;
         }
-        public byte[] RX_ADDR_P0_0
+        public byte[] ADDR
         {
             get
             {
-                return register;
+                return Register;
             }
             set
             {
-                register = value;
+                Register = value;
             }
         }
     }
@@ -625,17 +807,17 @@ namespace Radio.Nordic
 
         public RX_ADDR_P1()
         {
-            id = 0x0B;
+            Id = 0x0B;
         }
-        public byte[] RX_ADDR_P0_0
+        public byte[] ADDR
         {
             get
             {
-                return register;
+                return Register;
             }
             set
             {
-                register = value;
+                Register = value;
             }
         }
     }
@@ -644,17 +826,17 @@ namespace Radio.Nordic
 
         public RX_ADDR_P2()
         {
-            id = 0x0C;
+            Id = 0x0C;
         }
-        public byte RX_ADDR_P0_0
+        public byte ADDR
         {
             get
             {
-                return register[0];
+                return Register[0];
             }
             set
             {
-                register[0] = value;
+                Register[0] = value;
             }
         }
     }
@@ -663,17 +845,17 @@ namespace Radio.Nordic
 
         public RX_ADDR_P3()
         {
-            id = 0x0D;
+            Id = 0x0D;
         }
-        public byte RX_ADDR_P0_3
+        public byte ADDR
         {
             get
             {
-                return register[0];
+                return Register[0];
             }
             set
             {
-                register[0] = value;
+                Register[0] = value;
             }
         }
     }
@@ -682,17 +864,17 @@ namespace Radio.Nordic
 
         public RX_ADDR_P4()
         {
-            id = 0x0E;
+            Id = 0x0E;
         }
-        public byte RX_ADDR_P0_4
+        public byte ADDR
         {
             get
             {
-                return register[0];
+                return Register[0];
             }
             set
             {
-                register[0] = value;
+                Register[0] = value;
             }
         }
     }
@@ -701,17 +883,17 @@ namespace Radio.Nordic
 
         public RX_ADDR_P5()
         {
-            id = 0x0F;
+            Id = 0x0F;
         }
-        public byte RX_ADDR_P0_5
+        public byte ADDR
         {
             get
             {
-                return register[0];
+                return Register[0];
             }
             set
             {
-                register[0] = value;
+                Register[0] = value;
             }
         }
     }
@@ -719,17 +901,17 @@ namespace Radio.Nordic
     {
         public TX_ADDR()
         {
-            id = 0x10;
+            Id = 0x10;
         }
-        public byte[] TX_ADDR_0
+        public byte[] ADDR
         {
             get
             {
-                return register;
+                return Register;
             }
             set
             {
-                register = value;
+                Register = value;
             }
         }
     }
@@ -737,17 +919,17 @@ namespace Radio.Nordic
     {
         public RX_PW_P0()
         {
-            id = 0x11;
+            Id = 0x11;
         }
-        public byte RX_PW_P0_0
+        public byte RX_PW
         {
             get
             {
-                return register[0];
+                return Register[0];
             }
             set
             {
-                register[0] = value;
+                Register[0] = value;
             }
         }
     }
@@ -755,17 +937,17 @@ namespace Radio.Nordic
     {
         public RX_PW_P1()
         {
-            id = 0x12;
+            Id = 0x12;
         }
-        public byte RX_PW_P1_0
+        public byte RX_PW
         {
             get
             {
-                return register[0];
+                return Register[0];
             }
             set
             {
-                register[0] = value;
+                Register[0] = value;
             }
         }
     }
@@ -773,17 +955,17 @@ namespace Radio.Nordic
     {
         public RX_PW_P2()
         {
-            id = 0x13;
+            Id = 0x13;
         }
-        public byte RX_PW_P1_0
+        public byte RX_PW
         {
             get
             {
-                return register[0];
+                return Register[0];
             }
             set
             {
-                register[0] = value;
+                Register[0] = value;
             }
         }
     }
@@ -791,17 +973,17 @@ namespace Radio.Nordic
     {
         public RX_PW_P3()
         {
-            id = 0x14;
+            Id = 0x14;
         }
-        public byte RX_PW_P1_0
+        public byte RX_PW
         {
             get
             {
-                return register[0];
+                return Register[0];
             }
             set
             {
-                register[0] = value;
+                Register[0] = value;
             }
         }
     }
@@ -809,17 +991,17 @@ namespace Radio.Nordic
     {
         public RX_PW_P4()
         {
-            id = 0x15;
+            Id = 0x15;
         }
-        public byte RX_PW_P1_0
+        public byte RX_PW
         {
             get
             {
-                return register[0];
+                return Register[0];
             }
             set
             {
-                register[0] = value;
+                Register[0] = value;
             }
         }
     }
@@ -827,17 +1009,17 @@ namespace Radio.Nordic
     {
         public RX_PW_P5()
         {
-            id = 0x16;
+            Id = 0x16;
         }
-        public byte RX_PW_P1_0
+        public byte RX_PW
         {
             get
             {
-                return register[0];
+                return Register[0];
             }
             set
             {
-                register[0] = value;
+                Register[0] = value;
             }
         }
     }
@@ -845,27 +1027,41 @@ namespace Radio.Nordic
     {
         public FIFO_STATUS()
         {
-            id = 0x17;
+            Id = 0x17;
         }
         public bool TX_REUSE
         {
             get
             {
-                return (register[0] & 0x40) != 0;
+                return (Register[0] & BIT(6)) != 0;
             }
         }
         public bool TX_FULL
         {
             get
             {
-                return (register[0] & 0x20) != 0;
+                return (Register[0] & BIT(5)) != 0;
+            }
+        }
+        public bool TX_EMPTY
+        {
+            get
+            {
+                return (Register[0] & BIT(4)) != 0;
+            }
+        }
+        public bool RX_FULL
+        {
+            get
+            {
+                return (Register[0] & BIT(1)) != 0;
             }
         }
         public bool RX_EMPTY
         {
             get
             {
-                return (register[0] & 0x10) != 0;
+                return (Register[0] & BIT(0)) != 0;
             }
         }
     }
@@ -873,23 +1069,23 @@ namespace Radio.Nordic
     {
         public DYNPD()
         {
-            id = 0x1C;
+            Id = 0x1C;
         }
         public bool DPL_P0
         {
             get
             {
-                return (register[0] & 0x01) != 0;
+                return (Register[0] & 0x01) != 0;
             }
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x01;
+                    Register[0] |= 0x01;
                 }
                 else
                 {
-                    register[0] &= 0xFE;
+                    Register[0] &= 0xFE;
                 }
             }
         }
@@ -897,17 +1093,17 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x02) != 0;
+                return (Register[0] & 0x02) != 0;
             }
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x02;
+                    Register[0] |= 0x02;
                 }
                 else
                 {
-                    register[0] &= 0xFD;
+                    Register[0] &= 0xFD;
                 }
             }
         }
@@ -916,23 +1112,23 @@ namespace Radio.Nordic
     {
         public FEATURE()
         {
-            id = 0x1D;
+            Id = 0x1D;
         }
         public bool EN_DPL
         {
             get
             {
-                return (register[0] & 0x04) != 0;
+                return (Register[0] & 0x04) != 0;
             }
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x04;
+                    Register[0] |= 0x04;
                 }
                 else
                 {
-                    register[0] &= 0xFB;
+                    Register[0] &= 0xFB;
                 }
             }
         }
@@ -940,21 +1136,37 @@ namespace Radio.Nordic
         {
             get
             {
-                return (register[0] & 0x02) != 0;
+                return (Register[0] & 0x02) != 0;
             }
             set
             {
                 if (value)
                 {
-                    register[0] |= 0x02;
+                    Register[0] |= 0x02;
                 }
                 else
                 {
-                    register[0] &= 0xFD;
+                    Register[0] &= 0xFD;
                 }
             }
         }
     }
+    public static class Literals
+    {
+        public static byte BYTE(int arg)
+        {
+            return (byte)(arg & 0xff);
+        }
 
+        public static byte NBYTE(int arg)
+        {
+            return (byte)(~arg & 0xff);
+        }
 
+        public static byte BIT(byte p)
+        {
+            return (byte)(1 << p);
+        }
+
+    }
 }

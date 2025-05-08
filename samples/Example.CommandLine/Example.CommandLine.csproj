@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SpiDriver\SpiDriver.csproj" />
+    <ProjectReference Include="..\..\Futurist.Nordic.NRF244L01P\Futurist.Nordic.NRF244L01P.csproj" />
   </ItemGroup>
 
 </Project>
