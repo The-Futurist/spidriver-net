@@ -1,7 +1,7 @@
-﻿using static Radio.Nordic.Literals;
+﻿using static Radio.Nordic.NRF24L01P.Literals;
 
 
-namespace Radio.Nordic
+namespace Radio.Nordic.NRF24L01P
 {
     public class DYNPD : REGISTER_SHORT
     {

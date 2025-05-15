@@ -1,4 +1,4 @@
-﻿namespace Radio.Nordic
+﻿namespace Radio.Nordic.NRF24L01P
 {
     public class RX_ADDR_P2 : REGISTER_SHORT
     {

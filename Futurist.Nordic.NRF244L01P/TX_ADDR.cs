@@ -1,4 +1,4 @@
-﻿namespace Radio.Nordic
+﻿namespace Radio.Nordic.NRF24L01P
 {
     public class TX_ADDR : REGISTER_LONG
     {

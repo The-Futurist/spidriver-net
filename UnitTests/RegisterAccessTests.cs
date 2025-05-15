@@ -1,5 +1,5 @@
-﻿using Radio.Nordic;
-using static Radio.Nordic.Literals;
+﻿using Radio.Nordic.NRF24L01P;
+using static Radio.Nordic.NRF24L01P.Literals;
 
 namespace UnitTests
 {

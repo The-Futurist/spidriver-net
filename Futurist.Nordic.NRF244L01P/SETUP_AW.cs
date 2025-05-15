@@ -1,4 +1,4 @@
-﻿namespace Radio.Nordic
+﻿namespace Radio.Nordic.NRF24L01P
 {
     public class SETUP_AW : REGISTER_SHORT
     {

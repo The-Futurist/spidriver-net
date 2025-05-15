@@ -1,4 +1,4 @@
-﻿using Radio.Nordic;
+﻿using Radio.Nordic.NRF24L01P;
 using System.Management;
 
 namespace Sandbox

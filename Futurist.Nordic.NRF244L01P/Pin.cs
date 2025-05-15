@@ -1,4 +1,4 @@
-﻿namespace Radio.Nordic
+﻿namespace Radio.Nordic.NRF24L01P
 {
     // On the NRF devices, the pins are assigned to the following functions using standard numbering for IDC
     //

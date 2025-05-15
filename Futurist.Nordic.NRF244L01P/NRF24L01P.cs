@@ -2,7 +2,7 @@
 using System.Management;
 
 
-namespace Radio.Nordic
+namespace Radio.Nordic.NRF24L01P
 {
     public class NRF24L01P : IDisposable
     {
