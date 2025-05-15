@@ -6,33 +6,10 @@
         {
             Id = 0x07;
         }
-        public bool RX_DR
-        {
-            get
-            {
-                return (Register[0] & 0x40) != 0;
-            }
-        }
-        public bool TX_DS
-        {
-            get
-            {
-                return (Register[0] & 0x20) != 0;
-            }
-        }
-        public bool MAX_RT
-        {
-            get
-            {
-                return (Register[0] & 0x10) != 0;
-            }
-        }
-        public byte RX_P_NO
-        {
-            get
-            {
-                return (byte)((Register[0] & 0x0E) >> 1);
-            }
-        }
+        public bool RX_DR => BIT6;
+        public bool TX_DS => BIT5;
+        public bool MAX_RT => BIT4;
+        public byte RX_P_NO => (byte)((Register[0] & 0x0E) >> 1);
+        public bool TX_FULL => BIT0;
     }
 }

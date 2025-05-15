@@ -12,83 +12,23 @@ namespace Radio.Nordic.NRF24L01P
 
         public bool CONT_WAVE
         {
-            get
-            {
-                return (Register[0] & BIT(7)) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= BIT(7);
-                }
-                else
-                {
-                    Register[0] &= NBYTE(BIT(7));
-                }
-            }
-
+            get => BIT7; set => BIT7 = value;
         }
         public bool RF_DR_LOW
         {
-            get
-            {
-                return (Register[0] & BIT(5)) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= BIT(5);
-                }
-                else
-                {
-                    Register[0] &= NBYTE(BIT(5));
-                }
-            }
+            get => BIT5; set => BIT5 = value;
         }
         public bool PLL_LOCK
         {
-            get
-            {
-                return (Register[0] & BIT(4)) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= BIT(4);
-                }
-                else
-                {
-                    Register[0] &= NBYTE(BIT(4));
-                }
-            }
+            get => BIT4; set => BIT4 = value;
         }
         public bool RF_DR_HIGH
         {
-            get
-            {
-                return (Register[0] & BIT(3)) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= BIT(3);
-                }
-                else
-                {
-                    Register[0] &= NBYTE(BIT(3));
-                }
-            }
+            get => BIT3; set => BIT3 = value;
         }
         public byte RF_PWR
         {
-            get
-            {
-                return (byte)((Register[0] & 0x06) >> 1);
-            }
+            get => (byte)((Register[0] & 0x06) >> 1);
             set
             {
                 Register[0] &= 0xF9;

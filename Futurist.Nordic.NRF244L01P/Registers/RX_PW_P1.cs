@@ -8,14 +8,7 @@
         }
         public byte RX_PW
         {
-            get
-            {
-                return Register[0];
-            }
-            set
-            {
-                Register[0] = value;
-            }
+            get => Register[0]; set => Register[0] = value;
         }
     }
 }

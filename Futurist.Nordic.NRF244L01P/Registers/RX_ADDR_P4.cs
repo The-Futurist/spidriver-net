@@ -9,14 +9,7 @@
         }
         public byte ADDR
         {
-            get
-            {
-                return Register[0];
-            }
-            set
-            {
-                Register[0] = value;
-            }
+            get => Register[0]; set => Register[0] = value;
         }
     }
 }

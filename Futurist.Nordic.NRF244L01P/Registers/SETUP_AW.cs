@@ -8,10 +8,7 @@
         }
         public byte AW
         {
-            get
-            {
-                return (byte)(Register[0] & 0x03);
-            }
+            get => (byte)(Register[0] & 0x03);
             set
             {
                 Register[0] &= 0xFC;

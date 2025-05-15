@@ -8,10 +8,7 @@
         }
         public byte ARD
         {
-            get
-            {
-                return (byte)((Register[0] & 0xF0) >> 4);
-            }
+            get => (byte)((Register[0] & 0xF0) >> 4);
             set
             {
                 Register[0] &= 0x0F;
@@ -20,10 +17,7 @@
         }
         public byte ARC
         {
-            get
-            {
-                return (byte)(Register[0] & 0x0F);
-            }
+            get => (byte)(Register[0] & 0x0F);
             set
             {
                 Register[0] &= 0xF0;

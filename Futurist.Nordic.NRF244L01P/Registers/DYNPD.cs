@@ -11,111 +11,27 @@ namespace Radio.Nordic.NRF24L01P
         }
         public bool DPL_P0
         {
-            get
-            {
-                return (Register[0] & BIT(0)) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= BIT(0);
-                }
-                else
-                {
-                    Register[0] &= NBYTE(BIT(0));
-                }
-            }
+            get => BIT0; set => BIT0 = value;
         }
         public bool DPL_P1
         {
-            get
-            {
-                return (Register[0] & BIT(1)) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= BIT(1);
-                }
-                else
-                {
-                    Register[0] &= NBYTE(BIT(1));
-                }
-            }
+            get => BIT1; set => BIT1 = value;
         }
         public bool DPL_P2
         {
-            get
-            {
-                return (Register[0] & BIT(2)) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= BIT(2);
-                }
-                else
-                {
-                    Register[0] &= NBYTE(BIT(2));
-                }
-            }
+            get => BIT2; set => BIT2 = value;
         }
         public bool DPL_P3
         {
-            get
-            {
-                return (Register[0] & BIT(3)) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= BIT(3);
-                }
-                else
-                {
-                    Register[0] &= NBYTE(BIT(3));
-                }
-            }
+            get => BIT3; set => BIT3 = value;
         }
         public bool DPL_P4
         {
-            get
-            {
-                return (Register[0] & BIT(4)) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= BIT(4);
-                }
-                else
-                {
-                    Register[0] &= NBYTE(BIT(4));
-                }
-            }
+            get => BIT4; set => BIT4 = value;
         }
         public bool DPL_P5
         {
-            get
-            {
-                return (Register[0] & BIT(5)) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= BIT(5);
-                }
-                else
-                {
-                    Register[0] &= NBYTE(BIT(5));
-                }
-            }
+            get => BIT5; set => BIT5 = value;
         }
     }
 }

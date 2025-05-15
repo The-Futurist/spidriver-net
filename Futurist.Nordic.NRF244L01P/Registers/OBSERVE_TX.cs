@@ -6,19 +6,7 @@
         {
             Id = 0x08;
         }
-        public byte PLOS_CNT
-        {
-            get
-            {
-                return (byte)((Register[0] & 0xF0) >> 4);
-            }
-        }
-        public byte ARC_CNT
-        {
-            get
-            {
-                return (byte)(Register[0] & 0x0F);
-            }
-        }
+        public byte PLOS_CNT => (byte)((Register[0] & 0xF0) >> 4);
+        public byte ARC_CNT => (byte)(Register[0] & 0x0F);
     }
 }

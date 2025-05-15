@@ -8,14 +8,7 @@
         }
         public byte[] ADDR
         {
-            get
-            {
-                return Register;
-            }
-            set
-            {
-                Register = value;
-            }
+            get => Register; set => Register = value;
         }
     }
 }

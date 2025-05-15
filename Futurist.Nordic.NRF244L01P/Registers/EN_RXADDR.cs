@@ -8,116 +8,27 @@
         }
         public bool ERX_P0
         {
-            get
-            {
-                return (Register[0] & 0x01) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= 0x01;
-                }
-                else
-                {
-                    Register[0] &= 0xFE;
-                }
-            }
+            get => BIT0; set => BIT0 = value;
         }
-
         public bool ERX_P1
         {
-            get
-            {
-                return (Register[0] & 0x02) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= 0x02;
-                }
-                else
-                {
-                    Register[0] &= 0xFD;
-                }
-            }
+            get => BIT1; set => BIT1 = value;
         }
-
         public bool ERX_P2
         {
-            get
-            {
-                return (Register[0] & 0x04) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= 0x04;
-                }
-                else
-                {
-                    Register[0] &= 0xFB;
-                }
-            }
+            get => BIT2; set => BIT2 = value;
         }
-
         public bool ERX_P3
         {
-            get
-            {
-                return (Register[0] & 0x08) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= 0x08;
-                }
-                else
-                {
-                    Register[0] &= 0xF7;
-                }
-            }
+            get => BIT3; set => BIT3 = value;
         }
-
         public bool ERX_P4
         {
-            get
-            {
-                return (Register[0] & 0x10) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= 0x10;
-                }
-                else
-                {
-                    Register[0] &= 0xEF;
-                }
-            }
+            get => BIT4; set => BIT4 = value;
         }
-
         public bool ERX_P5
         {
-            get
-            {
-                return (Register[0] & 0x20) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    Register[0] |= 0x20;
-                }
-                else
-                {
-                    Register[0] &= 0xDF;
-                }
-            }
+            get => BIT5; set => BIT5 = value;
         }
     }
 }

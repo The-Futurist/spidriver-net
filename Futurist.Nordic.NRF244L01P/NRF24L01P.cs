@@ -53,17 +53,11 @@ namespace Radio.Nordic.NRF24L01P
         }
         public Pin CS
         {
-            set
-            {
-                device.SetOutput(Output.CS, value == Pin.Low ? true : false);
-            }
+            set => device.SetOutput(Output.CS, value == Pin.Low ? true : false);
         }
         public Pin CE
         {
-            set
-            {
-                device.SetOutput(Output.CS, value == Pin.Low ? false : true);
-            }
+            set => device.SetOutput(Output.CS, value == Pin.Low ? false : true);
         }
         public void SetCSLow()
         {
