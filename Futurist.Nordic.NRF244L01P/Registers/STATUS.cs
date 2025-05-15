@@ -4,7 +4,7 @@
     {
         public STATUS()
         {
-            Id = 7;
+            Id = 0x07;
         }
         public bool RX_DR
         {

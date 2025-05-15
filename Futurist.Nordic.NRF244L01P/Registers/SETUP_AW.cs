@@ -4,7 +4,7 @@
     {
         public SETUP_AW()
         {
-            Id = 3;
+            Id = 0x03;
         }
         public byte AW
         {

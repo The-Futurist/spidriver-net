@@ -4,7 +4,7 @@
     {
         public SETUP_RETR()
         {
-            Id = 4;
+            Id = 0x04;
         }
         public byte ARD
         {

@@ -5,7 +5,7 @@
 
         public CONFIG()
         {
-            Id = 0;
+            Id = 0x00;
         }
         public bool RESERVED
         {

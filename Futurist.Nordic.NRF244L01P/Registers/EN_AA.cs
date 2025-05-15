@@ -4,7 +4,7 @@
     {
         public EN_AA()
         {
-            Id = 1;
+            Id = 0x01;
         }
         public bool ENAA_P0
         {

@@ -4,7 +4,7 @@
     {
         public RF_CH()
         {
-            Id = 5;
+            Id = 0x05;
         }
         public byte CH
         {

@@ -4,7 +4,7 @@
     {
         public OBSERVE_TX()
         {
-            Id = 9;
+            Id = 0x08;
         }
         public byte PLOS_CNT
         {

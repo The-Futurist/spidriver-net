@@ -4,7 +4,7 @@
     {
         public EN_RXADDR()
         {
-            Id = 2;
+            Id = 0x02;
         }
         public bool ERX_P0
         {

@@ -7,7 +7,7 @@ namespace Radio.Nordic.NRF24L01P
     {
         public RF_SETUP()
         {
-            Id = 6;
+            Id = 0x06;
         }
 
         public bool CONT_WAVE
