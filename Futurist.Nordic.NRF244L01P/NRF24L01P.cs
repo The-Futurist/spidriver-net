@@ -337,6 +337,39 @@ namespace Radio.Nordic.NRF24L01P
             WriteRegister(reg);
             Thread.Sleep(2); // 1.5 mS or more is the required settling time. 
         }
+
+        public void SetReceiveAddressLong(ulong Address, Pipe Pipe)
+        {
+            byte[] address = BitConverter.GetBytes(Address);
+
+            switch ((byte)Pipe)
+            {
+                case 0:
+                    {
+                        var reg = ReadRegister<RX_ADDR_P0>();
+                        reg.ADDR = address;
+                        WriteRegister(reg);
+                        break;
+                    }
+
+                case 1:
+                    {
+                        var reg = ReadRegister<RX_ADDR_P1>();
+                        reg.ADDR = address;
+                        WriteRegister(reg);
+                        break;
+                    }
+            }
+        }
+
+        public void SetTransmitAddress(ulong Address)
+        {
+            byte[] address = BitConverter.GetBytes(Address);
+
+            var txaddr = ReadRegister<TX_ADDR>();
+            txaddr.ADDR = address;
+            WriteRegister(txaddr);
+        }
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)

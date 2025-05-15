@@ -1,5 +1,6 @@
 ﻿using Radio.Nordic.NRF24L01P;
 using System.Management;
+using System.Net;
 
 namespace Sandbox
 {
@@ -8,6 +9,8 @@ namespace Sandbox
         static void Main(string[] argv)
         {
             var port = NRF24L01P.GetNrfComPort();
+
+            byte[] address = BitConverter.GetBytes(0x123456789ABCDEUL);
 
 
             using (NRF24L01P nrf = new NRF24L01P(port))
