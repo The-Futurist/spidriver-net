@@ -171,7 +171,172 @@ namespace Radio.Nordic.NRF24L01P
             WriteRegister(rx_pw4);
             WriteRegister(rx_pw5);
         }
+        public void ConfigureRadio(byte Channel, byte Power, byte Rate)
+        {
+            var rf_ch = ReadRegister<RF_CH>();
 
+            rf_ch.CH = Channel;
+
+            WriteRegister(rf_ch);
+
+            var rf_setup = ReadRegister<RF_SETUP>();
+
+            rf_setup.RF_PWR = Power;
+
+            switch (Rate) // TODO validate this arg
+            {
+                case 1:    // min rate
+                    {
+                        rf_setup.RF_DR_LOW = true;
+                        rf_setup.RF_DR_HIGH = false;
+                        break;
+                    }
+                case 2:    // mmax rate
+                    {
+                        rf_setup.RF_DR_LOW = false;
+                        rf_setup.RF_DR_HIGH = true;
+                        break;
+                    }
+                case 0:    // med rate
+                    {
+                        rf_setup.RF_DR_LOW = false;
+                        rf_setup.RF_DR_HIGH = false;
+                        break;
+                    }
+            }
+
+            WriteRegister(rf_setup);
+        }
+        public void ClearInterruptFlags(bool RX_DR, bool TX_DS, bool MAX_RT)
+        {
+            // The bits in the NRF are write 1 to clear, so setting them true, clears that interrupt
+
+            var status = ReadRegister<STATUS>();
+
+            status.RX_DR = RX_DR;
+            status.TX_DS = TX_DS;
+            status.MAX_RT = MAX_RT;
+
+            WriteRegister(status);
+        }
+        public void SetPipeState(Pipe Pipe, bool State)
+        {
+            var reg = ReadRegister<EN_RXADDR>();
+
+            switch ((byte)Pipe)
+            {
+                case 0:
+                    {
+                        reg.ERX_P0 = State;
+                        break;
+                    }
+                case 1:
+                    {
+                        reg.ERX_P1 = State;
+                        break;
+                    }
+                case 2:
+                    {
+                        reg.ERX_P2 = State;
+                        break;
+                    }
+                case 3:
+                    {
+                        reg.ERX_P3 = State;
+                        break;
+                    }
+                case 4:
+                    {
+                        reg.ERX_P4 = State;
+                        break;
+                    }
+                case 5:
+                    {
+                        reg.ERX_P5 = State;
+                        break;
+                    }
+            }
+
+            WriteRegister(reg);
+        }
+        public void SetAutoAck(Pipe Pipe, bool State)
+        {
+            var reg = ReadRegister<EN_AA>();
+
+            switch ((byte)Pipe)
+            {
+                case 0:
+                    {
+                        reg.ENAA_P0 = State;
+                        break;
+                    }
+                case 1:
+                    {
+                        reg.ENAA_P1 = State;
+                        break;
+                    }
+                case 2:
+                    {
+                        reg.ENAA_P2 = State;
+                        break;
+                    }
+                case 3:
+                    {
+                        reg.ENAA_P3 = State;
+                        break;
+                    }
+                case 4:
+                    {
+                        reg.ENAA_P4 = State;
+                        break;
+                    }
+                case 5:
+                    {
+                        reg.ENAA_P5 = State;
+                        break;
+                    }
+            }
+
+            WriteRegister(reg);
+        }
+
+        public void SetTransmitMode()
+        {
+            var reg = ReadRegister<CONFIG>();
+            reg.PRIM_RX = false;
+            WriteRegister(reg);
+        }
+
+        public void SetCRC(bool EnableCrc, bool CrcSize)
+        {
+            var reg = ReadRegister<CONFIG>();
+            reg.EN_CRC = EnableCrc;
+            reg.CRCO = CrcSize;
+            WriteRegister(reg);
+        }
+
+        public void SetAddressWidth(byte Width)
+        {
+            var reg = ReadRegister<SETUP_AW>();
+            reg.AW = Width;
+            WriteRegister(reg);
+        }
+
+        public void SetAutoAckRetries(byte Interval, byte MaxRetries)
+        {
+            var reg = ReadRegister<SETUP_RETR>();
+            reg.ARD = Interval;
+            reg.ARC = MaxRetries;
+            WriteRegister(reg);
+        }
+
+        public void PowerUp()
+        {
+            var reg = ReadRegister<CONFIG>();
+            reg.PWR_UP = true;
+            WriteRegister(reg);
+            Thread.Sleep(2); // 1.5 mS or more is the required settling time. 
+        }
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
