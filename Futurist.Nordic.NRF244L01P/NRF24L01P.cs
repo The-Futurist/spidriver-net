@@ -1,4 +1,5 @@
-﻿using SpiDriver;
+﻿using Microsoft.Win32;
+using SpiDriver;
 using System.Management;
 
 // SEE: https://cdn.sparkfun.com/assets/3/d/8/5/1/nRF24L01P_Product_Specification_1_0.pdf
@@ -341,13 +342,16 @@ namespace Radio.Nordic.NRF24L01P
         public void SetReceiveAddressLong(ulong Address, Pipe Pipe)
         {
             byte[] address = BitConverter.GetBytes(Address);
+            byte[] buffer = new byte[5];
+            Array.Copy(address, buffer,5);
+            Array.Reverse(buffer);
 
             switch ((byte)Pipe)
             {
                 case 0:
                     {
                         var reg = ReadRegister<RX_ADDR_P0>();
-                        reg.ADDR = address;
+                        reg.ADDR = buffer;
                         WriteRegister(reg);
                         break;
                     }
@@ -355,7 +359,7 @@ namespace Radio.Nordic.NRF24L01P
                 case 1:
                     {
                         var reg = ReadRegister<RX_ADDR_P1>();
-                        reg.ADDR = address;
+                        reg.ADDR = buffer;
                         WriteRegister(reg);
                         break;
                     }
@@ -365,10 +369,29 @@ namespace Radio.Nordic.NRF24L01P
         public void SetTransmitAddress(ulong Address)
         {
             byte[] address = BitConverter.GetBytes(Address);
+            byte[] buffer = new byte[5];
+            Array.Copy(address, buffer, 5);
+            Array.Reverse(buffer);
 
             var txaddr = ReadRegister<TX_ADDR>();
-            txaddr.ADDR = address;
+            txaddr.ADDR = buffer;
             WriteRegister(txaddr);
+        }
+
+        public void SendPayload(byte[] Buffer)
+        {
+            SetCSLow();
+            device.Write(new byte[] { (byte)((byte)COMMNAND.W_TX_PAYLOAD) }, 0, 1);
+            device.Write(Buffer, 0, Buffer.Length);
+            SetCSHigh();
+
+            // We must pulse the CE pin for > 10 uS, this code strives to spin for about 20 uS
+
+            SetCEHigh();
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            while (stopwatch.ElapsedTicks < (20 * (System.Diagnostics.Stopwatch.Frequency / 1_000_000))) { }
+            SetCELow();
+
         }
         protected virtual void Dispose(bool disposing)
         {

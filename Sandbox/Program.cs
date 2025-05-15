@@ -1,64 +1,46 @@
 ﻿using Radio.Nordic.NRF24L01P;
-using System.Management;
-using System.Net;
 
 namespace Sandbox
 {
     class Program
     {
+        private static ulong address = 0x19513831AA; // Testing address
+        private static byte[] payload = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 };
+
         static void Main(string[] argv)
         {
             var port = NRF24L01P.GetNrfComPort();
 
-            byte[] address = BitConverter.GetBytes(0x123456789ABCDEUL);
-
-
             using (NRF24L01P nrf = new NRF24L01P(port))
             {
                 nrf.ConnectUSB();
-
                 nrf.Reset();
+                nrf.ConfigureRadio(9, 1, 0);
+                nrf.ClearInterruptFlags(true,true,true);
+                nrf.SetPipeState(Pipe.Pipe_0, true);
+                nrf.SetPipeState(Pipe.Pipe_1, false);
 
-                nrf.CS = Pin.High;
-                nrf.CE = Pin.Low;
+                nrf.SetAutoAck(Pipe.Pipe_0,true);
+                nrf.SetTransmitMode();
+                nrf.SetCRC(true,true);
+                nrf.SetAddressWidth(3);
+                nrf.SetAutoAckRetries(1, 10);
+                nrf.PowerUp();
 
-                var config = nrf.ReadRegister<CONFIG>();
-                var en_aa = nrf.ReadRegister<EN_AA>();
+                nrf.SetReceiveAddressLong(address, Pipe.Pipe_0);
+                nrf.SetTransmitAddress(address);
 
-                en_aa.ENAA_P1 = false;
+                STATUS status;
 
-                nrf.WriteRegister(en_aa);
+                status = nrf.ReadRegister<STATUS>();
 
-                en_aa = nrf.ReadRegister<EN_AA>();
-
-                var rx_addr_p0 = nrf.ReadRegister<RX_ADDR_P0>();
-                var rx_addr_p1 = nrf.ReadRegister<RX_ADDR_P1>();
-
+                while (true)
+                {
+                    nrf.SendPayload(payload);
+                    Thread.Sleep(20);
+                    status = nrf.ReadRegister<STATUS>();
+                }
             }
-
-            using (NRF24L01P nrf = new NRF24L01P(port))
-            {
-                nrf.ConnectUSB();
-
-                nrf.CS = Pin.High;
-                nrf.CE = Pin.Low;
-
-                var config = nrf.ReadRegister<CONFIG>();
-                var en_aa = nrf.ReadRegister<EN_AA>();
-
-                en_aa.ENAA_P1 = false;
-
-                nrf.WriteRegister(en_aa);
-
-                en_aa = nrf.ReadRegister<EN_AA>();
-
-                var rx_addr_p0 = nrf.ReadRegister<RX_ADDR_P0>();
-                var rx_addr_p1 = nrf.ReadRegister<RX_ADDR_P1>();
-
-            }
-
-
         }
-
     }
 }
