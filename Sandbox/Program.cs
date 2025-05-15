@@ -9,15 +9,12 @@ namespace Sandbox
         {
             var port = NRF24L01P.GetNrfComPort();
 
-            byte reg = 0; 
-            
-            
-            reg &= (byte)0xBF;
-
 
             using (NRF24L01P nrf = new NRF24L01P(port))
             {
                 nrf.ConnectUSB();
+
+                nrf.Reset();
 
                 nrf.CS = Pin.High;
                 nrf.CE = Pin.Low;

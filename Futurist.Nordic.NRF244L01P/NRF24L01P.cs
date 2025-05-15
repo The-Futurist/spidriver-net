@@ -44,7 +44,7 @@ namespace Radio.Nordic.NRF24L01P
             SetCSHigh();
             return register;
         }
-        public void WriteRegister<T>(T register) where T : REGISTER
+        public void WriteRegister(REGISTER register)
         {
             SetCSLow();
             device.Write(new byte[] { (byte)((byte)COMMNAND.W_REGISTER | register.Id) }, 0, 1);
@@ -75,6 +75,103 @@ namespace Radio.Nordic.NRF24L01P
         {
             device.SetOutput(Output.A, true);
         }
+
+        public void Reset()
+        {
+            CONFIG config = new CONFIG();
+            EN_AA en_aa = new EN_AA();
+            EN_RXADDR en_rxaddr = new EN_RXADDR();
+            SETUP_AW setup_aw = new SETUP_AW();
+            SETUP_RETR setup_retr  = new SETUP_RETR();
+            RF_CH rf_ch = new RF_CH();
+            RF_SETUP rf_setup = new RF_SETUP();
+            STATUS status = new STATUS();
+            RX_ADDR_P0 rx_addr_p0 = new RX_ADDR_P0();
+            RX_ADDR_P1 rx_addr_p1 = new RX_ADDR_P1();
+            RX_ADDR_P2 rx_addr_p2 = new RX_ADDR_P2();
+            RX_ADDR_P3 rx_addr_p3 = new RX_ADDR_P3();
+            RX_ADDR_P4 rx_addr_p4 = new RX_ADDR_P4();
+            RX_ADDR_P5 rx_addr_p5 = new RX_ADDR_P5();
+            TX_ADDR tx_addr = new TX_ADDR();
+            RX_PW_P0 rx_pw0 = new RX_PW_P0();
+            RX_PW_P1 rx_pw1 = new RX_PW_P1();
+            RX_PW_P2 rx_pw2 = new RX_PW_P2();
+            RX_PW_P3 rx_pw3 = new RX_PW_P3();
+            RX_PW_P4 rx_pw4 = new RX_PW_P4();
+            RX_PW_P5 rx_pw5 = new RX_PW_P5();
+
+            config.EN_CRC = true;
+
+            en_aa.ENAA_P5 = true;
+            en_aa.ENAA_P4 = true;
+            en_aa.ENAA_P3 = true;
+            en_aa.ENAA_P2 = true;
+            en_aa.ENAA_P1 = true;
+            en_aa.ENAA_P0 = true;
+
+            en_rxaddr.ERX_P0 = true;
+            en_rxaddr.ERX_P1 = true;
+
+            setup_aw.AW = 3;
+
+            setup_retr.ARD = 0x00;
+            setup_retr.ARC = 0x03;
+
+            rf_ch.CH = 2;
+
+            rf_setup.RF_DR_HIGH = true;
+            rf_setup.RF_PWR = 3;
+
+            status.RX_DR = false;
+            status.TX_DS = false;
+            status.MAX_RT = false;
+
+            rx_addr_p0.ADDR[0] = 0xE7;
+            rx_addr_p0.ADDR[1] = 0xE7;
+            rx_addr_p0.ADDR[2] = 0xE7;
+            rx_addr_p0.ADDR[3] = 0xE7;
+            rx_addr_p0.ADDR[4] = 0xE7;
+
+            rx_addr_p1.ADDR[0] = 0xC2;
+            rx_addr_p1.ADDR[1] = 0xC2;
+            rx_addr_p1.ADDR[2] = 0xC2;
+            rx_addr_p1.ADDR[3] = 0xC2;
+            rx_addr_p1.ADDR[4] = 0xC2;
+
+            rx_addr_p2.ADDR = 0xC3;
+            rx_addr_p3.ADDR = 0xC4;
+            rx_addr_p4.ADDR = 0xC5;
+            rx_addr_p5.ADDR = 0xC6;
+
+            tx_addr.ADDR[0] = 0xE7;
+            tx_addr.ADDR[1] = 0xE7;
+            tx_addr.ADDR[2] = 0xE7;
+            tx_addr.ADDR[3] = 0xE7;
+            tx_addr.ADDR[4] = 0xE7;
+
+            WriteRegister(config);
+            WriteRegister(en_aa);
+            WriteRegister(en_rxaddr);
+            WriteRegister(setup_aw);
+            WriteRegister(setup_retr);
+            WriteRegister(rf_ch);
+            WriteRegister(rf_setup);
+            WriteRegister(status);
+            WriteRegister(rx_addr_p0);
+            WriteRegister(rx_addr_p1);
+            WriteRegister(rx_addr_p2);
+            WriteRegister(rx_addr_p3);
+            WriteRegister(rx_addr_p4);
+            WriteRegister(rx_addr_p5);
+            WriteRegister(tx_addr);
+            WriteRegister(rx_pw0);
+            WriteRegister(rx_pw1);
+            WriteRegister(rx_pw2);
+            WriteRegister(rx_pw3);
+            WriteRegister(rx_pw4);
+            WriteRegister(rx_pw5);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
