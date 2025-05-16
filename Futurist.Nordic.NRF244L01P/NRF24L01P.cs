@@ -1,7 +1,9 @@
-﻿using Microsoft.Win32;
+﻿using Futurist.Nordic.NRF244L01P;
+using Microsoft.Win32;
 using SpiDriver;
+using System.CodeDom;
 using System.Management;
-
+    
 // SEE: https://cdn.sparkfun.com/assets/3/d/8/5/1/nRF24L01P_Product_Specification_1_0.pdf
 
 namespace Radio.Nordic.NRF24L01P
@@ -10,6 +12,11 @@ namespace Radio.Nordic.NRF24L01P
     {
         private Device device;
         private bool disposedValue;
+        private int channel = 0;
+        private int frequency = 2400;
+        private int retries = 3;
+        private int interval;
+
         public NRF24L01P(string comport)
         {
             this.device = new Device(comport);
@@ -20,8 +27,10 @@ namespace Radio.Nordic.NRF24L01P
             CS = Pin.High;
             CE = Pin.Low;
         }
-        public static string GetNrfComPort()
+        public static bool TryGetNrfComPort(out string Port)
         {
+            Port = null;
+
             using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'"))
             {
                 foreach (var obj in searcher.Get())
@@ -29,12 +38,13 @@ namespace Radio.Nordic.NRF24L01P
                     if (obj["Manufacturer"].ToString() == "FTDI")
                     {
                         var s = obj["Name"].ToString().Split(new char[] { '(', ')' }, 10);
-                        return s[1];
+                        Port = s[1];
+                        return true;
                     }
                 }
             }
 
-            return null;
+            return false;
         }
         public T ReadRegister<T>() where T : REGISTER, new()
         {
@@ -60,6 +70,10 @@ namespace Radio.Nordic.NRF24L01P
         {
             set => device.SetOutput(Output.CS, value == Pin.Low ? false : true);
         }
+        public int Channel { get => channel;  }
+        public int Interval { get => interval; }
+        public int Retries { get => retries; }
+        public int Frequency { get => frequency; }
         public void SetCSLow()
         {
             device.SetOutput(Output.CS, true);
@@ -118,7 +132,13 @@ namespace Radio.Nordic.NRF24L01P
             setup_retr.ARD = 0x00;
             setup_retr.ARC = 0x03;
 
+            interval = 250 + (setup_retr.ARD * 250);
+            retries = setup_retr.ARC;
+
             rf_ch.CH = 2;
+
+            channel = 2;
+            frequency = 2400 + 2;
 
             rf_setup.RF_DR_HIGH = true;
             rf_setup.RF_PWR = 3;
@@ -172,7 +192,7 @@ namespace Radio.Nordic.NRF24L01P
             WriteRegister(rx_pw4);
             WriteRegister(rx_pw5);
         }
-        public void ConfigureRadio(byte Channel, byte Power, byte Rate)
+        public void ConfigureRadio(byte Channel, OutputPower Power, DataRate Rate)
         {
             var rf_ch = ReadRegister<RF_CH>();
 
@@ -182,23 +202,23 @@ namespace Radio.Nordic.NRF24L01P
 
             var rf_setup = ReadRegister<RF_SETUP>();
 
-            rf_setup.RF_PWR = Power;
+            rf_setup.RF_PWR = (byte)Power;
 
             switch (Rate) // TODO validate this arg
             {
-                case 1:    // min rate
+                case DataRate.Min:    // min rate
                     {
                         rf_setup.RF_DR_LOW = true;
                         rf_setup.RF_DR_HIGH = false;
                         break;
                     }
-                case 2:    // mmax rate
+                case DataRate.Max:    // mmax rate
                     {
                         rf_setup.RF_DR_LOW = false;
                         rf_setup.RF_DR_HIGH = true;
                         break;
                     }
-                case 0:    // med rate
+                case DataRate.Med:    // med rate
                     {
                         rf_setup.RF_DR_LOW = false;
                         rf_setup.RF_DR_HIGH = false;
@@ -207,6 +227,10 @@ namespace Radio.Nordic.NRF24L01P
             }
 
             WriteRegister(rf_setup);
+
+            channel = Channel;
+            frequency = 2400 + channel;
+
         }
         public void ClearInterruptFlags(bool RX_DR, bool TX_DS, bool MAX_RT)
         {
@@ -316,19 +340,31 @@ namespace Radio.Nordic.NRF24L01P
             WriteRegister(reg);
         }
 
-        public void SetAddressWidth(byte Width)
+        public void SetAddressWidth(byte ByteWidth)
         {
+            if (ByteWidth < 3|| ByteWidth > 5)
+                throw new ArgumentException("Value must be >= 3 and <= 5", nameof(ByteWidth));
+
             var reg = ReadRegister<SETUP_AW>();
-            reg.AW = Width;
+            reg.AW = (byte)(ByteWidth - 2);
             WriteRegister(reg);
         }
 
         public void SetAutoAckRetries(byte Interval, byte MaxRetries)
         {
+            if (Interval > 15)
+                throw new ArgumentException("Value must be >= 0 and <= 15",nameof(Interval));
+
+            if (MaxRetries > 15)
+                throw new ArgumentException("Value must be >= 0 and <= 15", nameof(MaxRetries));
+
             var reg = ReadRegister<SETUP_RETR>();
             reg.ARD = Interval;
             reg.ARC = MaxRetries;
             WriteRegister(reg);
+
+            interval = 250 + (250 * Interval);
+            retries = MaxRetries;
         }
 
         public void PowerUp()

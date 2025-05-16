@@ -6,8 +6,15 @@ namespace UnitTests
     [TestClass]
     public sealed class RegisterAccessTests
     {
-        public static string PORT = NRF24L01P.GetNrfComPort();
+        public static string PORT; // NRF24L01P.TryGetNrfComPort();
 
+        static RegisterAccessTests()
+        {
+            if (NRF24L01P.TryGetNrfComPort(out PORT) == false)
+            {
+                throw new InvalidOperationException("No atatched device was detectec.");
+            }
+        }
         [TestMethod]
         [DoNotParallelize]
         public void ConnectTest()
@@ -15,7 +22,6 @@ namespace UnitTests
             using NRF24L01P nrf = new NRF24L01P(PORT);
             nrf.ConnectUSB();
         }
-
         [TestMethod]
         [DoNotParallelize]
         public void CONFIG()

@@ -1,46 +1,91 @@
-﻿using Radio.Nordic.NRF24L01P;
+﻿using Futurist.Nordic.NRF244L01P;
+using Radio.Nordic.NRF24L01P;
+using System.Diagnostics;
+using System.Net;
 
 namespace Sandbox
 {
     class Program
     {
-        private static ulong address = 0x19513831AA; // Testing address
+        private static ulong address = 0x1951383138; // Testing address
         private static byte[] payload = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 };
 
         static void Main(string[] argv)
         {
-            var port = NRF24L01P.GetNrfComPort();
-
-            using (NRF24L01P nrf = new NRF24L01P(port))
+            if (NRF24L01P.TryGetNrfComPort(out var port))
             {
-                nrf.ConnectUSB();
-                nrf.Reset();
-                nrf.ConfigureRadio(9, 1, 0);
-                nrf.ClearInterruptFlags(true,true,true);
-                nrf.SetPipeState(Pipe.Pipe_0, true);
-                nrf.SetPipeState(Pipe.Pipe_1, false);
-
-                nrf.SetAutoAck(Pipe.Pipe_0,true);
-                nrf.SetTransmitMode();
-                nrf.SetCRC(true,true);
-                nrf.SetAddressWidth(3);
-                nrf.SetAutoAckRetries(1, 10);
-                nrf.PowerUp();
-
-                nrf.SetReceiveAddressLong(address, Pipe.Pipe_0);
-                nrf.SetTransmitAddress(address);
-
-                STATUS status;
-
-                status = nrf.ReadRegister<STATUS>();
-
-                while (true)
+                using (NRF24L01P nrf = new NRF24L01P(port))
                 {
-                    nrf.SendPayload(payload);
-                    Thread.Sleep(20);
+                    nrf.ConnectUSB();
+                    nrf.Reset();
+                    nrf.ConfigureRadio(Channel:9, OutputPower.Low, DataRate.Med);
+                    nrf.ClearInterruptFlags(true, true, true);
+                    nrf.SetPipeState(Pipe.Pipe_0, true);
+                    nrf.SetPipeState(Pipe.Pipe_1, false);
+
+                    nrf.SetAutoAck(Pipe.Pipe_0, true);
+                    nrf.SetTransmitMode();
+                    nrf.SetCRC(true, true);
+                    nrf.SetAddressWidth(5);
+                    nrf.SetAutoAckRetries(Interval:1, MaxRetries:10);
+                    nrf.PowerUp();
+
+                    nrf.SetReceiveAddressLong(address, Pipe.Pipe_0);
+                    nrf.SetTransmitAddress(address);
+
+                    STATUS status;
+
                     status = nrf.ReadRegister<STATUS>();
+
+                    Stopwatch clock = new Stopwatch();
+
+                    while (true)
+                    {
+                        nrf.SendPayload(payload);
+
+                        clock.Reset();
+                        clock.Start();
+
+                        status = nrf.ReadRegister<STATUS>();
+
+                        int spins = 0;
+
+                        while (status.MAX_RT == false && status.TX_DS == false)
+                        {
+                            status = nrf.ReadRegister<STATUS>();
+                            //var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                            //while (stopwatch.ElapsedTicks < (50 * (System.Diagnostics.Stopwatch.Frequency / 1_000_000))) { }
+
+                            spins++;
+
+                        }
+
+                        clock.Stop();
+
+                        if (status.MAX_RT)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.Write(DateTime.Now);
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine($" No ack received. STN: {GetAddressText(address)} CHAN: {nrf.Channel} FREQ: {2400 + nrf.Channel} RET: {nrf.Retries} INT: {nrf.Interval} TOT: {(nrf.Retries + 1) * nrf.Interval}");
+                        }
+
+                        nrf.ClearInterruptFlags(true, true, true);
+                        Thread.Sleep(50);
+                    }
                 }
             }
+            else
+            {
+                Console.WriteLine("No NRF Device Port was found on this computer");
+            }
+        }
+
+        private static string GetAddressText(ulong Address)
+        {
+
+            string hexString = Address.ToString("X10");
+            return ($"{hexString[..2]}-{hexString[2..4]}-{hexString[4..6]}-{hexString[6..8]}-{hexString[8..10]}");
         }
     }
 }
