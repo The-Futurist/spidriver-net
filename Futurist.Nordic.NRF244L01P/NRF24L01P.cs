@@ -8,20 +8,16 @@ using System.Management;
 
 namespace Radio.Nordic.NRF24L01P
 {
-    public class NRF24L01P : IDisposable
+    public class NRF24L01P(string comport, Output CEPin) : IDisposable
     {
-        private Device device;
+        private readonly Device device = new(comport);
         private bool disposedValue;
         private int channel = 0;
         private int frequency = 2400;
         private int retries = 3;
         private int interval;
-        private Output ce_pin;
-        public NRF24L01P(string comport, Output CEPin)
-        {
-            this.device = new Device(comport);
-            this.ce_pin = CEPin;
-        }
+        private readonly Output ce_pin = CEPin;
+
         public void ConnectUSB()
         {
             device.Connect();
@@ -32,16 +28,14 @@ namespace Radio.Nordic.NRF24L01P
         {
             Port = null;
 
-            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'"))
+            using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'");
+            foreach (var obj in searcher.Get())
             {
-                foreach (var obj in searcher.Get())
+                if (obj["Manufacturer"].ToString() == "FTDI")
                 {
-                    if (obj["Manufacturer"].ToString() == "FTDI")
-                    {
-                        var s = obj["Name"].ToString().Split(new char[] { '(', ')' }, 10);
-                        Port = s[1];
-                        return true;
-                    }
+                    var s = obj["Name"].ToString().Split(['(', ')'], 10);
+                    Port = s[1];
+                    return true;
                 }
             }
 
@@ -49,9 +43,9 @@ namespace Radio.Nordic.NRF24L01P
         }
         public T ReadRegister<T>() where T : REGISTER, new()
         {
-            T register = new T();
+            T register = new();
             SetCSLow();
-            device.Write(new byte[] { (byte)((byte)COMMNAND.R_REGISTER | register.Id) }, 0, 1);
+            device.Write([(byte)((byte)COMMNAND.R_REGISTER | register.Id)], 0, 1);
             device.Read(register.Register, 0, register.Length);
             SetCSHigh();
             return register;
@@ -59,17 +53,17 @@ namespace Radio.Nordic.NRF24L01P
         public void WriteRegister(REGISTER register)
         {
             SetCSLow();
-            device.Write(new byte[] { (byte)((byte)COMMNAND.W_REGISTER | register.Id) }, 0, 1);
+            device.Write([(byte)((byte)COMMNAND.W_REGISTER | register.Id)], 0, 1);
             device.Write(register.Register, 0, register.Length);
             SetCSHigh();
         }
         public Pin CS
         {
-            set => device.SetOutput(Output.CS, value == Pin.Low ? true : false);
+            set => device.SetOutput(Output.CS, value == Pin.Low);
         }
         public Pin CE
         {
-            set => device.SetOutput(ce_pin, value == Pin.Low ? false : true);
+            set => device.SetOutput(ce_pin, value != Pin.Low);
         }
         public int Channel { get => channel;  }
         public int Interval { get => interval; }
@@ -94,27 +88,27 @@ namespace Radio.Nordic.NRF24L01P
 
         public void Reset()
         {
-            CONFIG config = new CONFIG();
-            EN_AA en_aa = new EN_AA();
-            EN_RXADDR en_rxaddr = new EN_RXADDR();
-            SETUP_AW setup_aw = new SETUP_AW();
-            SETUP_RETR setup_retr  = new SETUP_RETR();
-            RF_CH rf_ch = new RF_CH();
-            RF_SETUP rf_setup = new RF_SETUP();
-            STATUS status = new STATUS();
-            RX_ADDR_P0 rx_addr_p0 = new RX_ADDR_P0();
-            RX_ADDR_P1 rx_addr_p1 = new RX_ADDR_P1();
-            RX_ADDR_P2 rx_addr_p2 = new RX_ADDR_P2();
-            RX_ADDR_P3 rx_addr_p3 = new RX_ADDR_P3();
-            RX_ADDR_P4 rx_addr_p4 = new RX_ADDR_P4();
-            RX_ADDR_P5 rx_addr_p5 = new RX_ADDR_P5();
-            TX_ADDR tx_addr = new TX_ADDR();
-            RX_PW_P0 rx_pw0 = new RX_PW_P0();
-            RX_PW_P1 rx_pw1 = new RX_PW_P1();
-            RX_PW_P2 rx_pw2 = new RX_PW_P2();
-            RX_PW_P3 rx_pw3 = new RX_PW_P3();
-            RX_PW_P4 rx_pw4 = new RX_PW_P4();
-            RX_PW_P5 rx_pw5 = new RX_PW_P5();
+            CONFIG config = new();
+            EN_AA en_aa = new();
+            EN_RXADDR en_rxaddr = new();
+            SETUP_AW setup_aw = new();
+            SETUP_RETR setup_retr  = new();
+            RF_CH rf_ch = new();
+            RF_SETUP rf_setup = new();
+            STATUS status = new();
+            RX_ADDR_P0 rx_addr_p0 = new();
+            RX_ADDR_P1 rx_addr_p1 = new();
+            RX_ADDR_P2 rx_addr_p2 = new();
+            RX_ADDR_P3 rx_addr_p3 = new();
+            RX_ADDR_P4 rx_addr_p4 = new();
+            RX_ADDR_P5 rx_addr_p5 = new();
+            TX_ADDR tx_addr = new();
+            RX_PW_P0 rx_pw0 = new();
+            RX_PW_P1 rx_pw1 = new();
+            RX_PW_P2 rx_pw2 = new();
+            RX_PW_P3 rx_pw3 = new();
+            RX_PW_P4 rx_pw4 = new();
+            RX_PW_P5 rx_pw5 = new();
 
             config.EN_CRC = true;
 
@@ -196,7 +190,7 @@ namespace Radio.Nordic.NRF24L01P
         public void ConfigureRadio(byte Channel, OutputPower Power, DataRate Rate)
         {
             if (channel > 124)
-                throw new ArgumentException("The value must be >= 0 and <= 124.", nameof(channel));
+                throw new ArgumentException("The value must be >= 0 and <= 124.", nameof(Channel));
 
             var rf_ch = ReadRegister<RF_CH>();
 
@@ -414,7 +408,7 @@ namespace Radio.Nordic.NRF24L01P
         public void SendPayload(byte[] Buffer)
         {
             SetCSLow();
-            device.Write(new byte[] { (byte)((byte)COMMNAND.W_TX_PAYLOAD) }, 0, 1);
+            device.Write([(byte)((byte)COMMNAND.W_TX_PAYLOAD)], 0, 1);
             device.Write(Buffer, 0, Buffer.Length);
             SetCSHigh();
 

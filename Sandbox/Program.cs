@@ -8,62 +8,60 @@ namespace Sandbox
 
     class Program
     {
-        private static Address nucleo_1_address = new Address(0x1951383138); // board's ID address
-        private static Address nucleo_2_address = new Address(0x0F50334636); // board's ID address
-        private static byte[] payload = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 };
+        private static Address nucleo_1_address = new(0x1951383138); // board's ID address
+        private static Address nucleo_2_address = new(0x0F50334636); // board's ID address
+        private static byte[] payload = [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88];
 
         static void Main(string[] argv)
         {
             if (NRF24L01P.TryGetNrfComPort(out var port))
             {
-                using (NRF24L01P nrf = new NRF24L01P(port, Output.A))
+                using NRF24L01P nrf = new(port, Output.A);
+                nrf.ConnectUSB();
+                nrf.Reset();
+                nrf.ConfigureRadio(Channel: 9, OutputPower.Low, DataRate.Med);
+                nrf.ClearInterruptFlags(true, true, true);
+                nrf.SetPipeState(Pipe.Pipe_0, true);
+                nrf.SetPipeState(Pipe.Pipe_1, false);
+
+                nrf.SetAutoAck(Pipe.Pipe_0, true);
+                nrf.SetTransmitMode();
+                nrf.SetCRC(true, true);
+                nrf.SetAddressWidth(5);
+                nrf.SetAutoAckRetries(Interval: 1, MaxRetries: 1);
+                nrf.PowerUp();
+
+                while (true)
                 {
-                    nrf.ConnectUSB();
-                    nrf.Reset();
-                    nrf.ConfigureRadio(Channel:9, OutputPower.Low, DataRate.Med);
-                    nrf.ClearInterruptFlags(true, true, true);
-                    nrf.SetPipeState(Pipe.Pipe_0, true);
-                    nrf.SetPipeState(Pipe.Pipe_1, false);
+                    nrf.SetReceiveAddressLong(nucleo_1_address, Pipe.Pipe_0);
+                    nrf.SetTransmitAddress(nucleo_1_address);
+                    nrf.SendPayload(payload);
 
-                    nrf.SetAutoAck(Pipe.Pipe_0, true);
-                    nrf.SetTransmitMode();
-                    nrf.SetCRC(true, true);
-                    nrf.SetAddressWidth(5);
-                    nrf.SetAutoAckRetries(Interval:1, MaxRetries:1);
-                    nrf.PowerUp();
+                    var status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
 
-                    while (true)
+                    if (status.MAX_RT)
                     {
-                        nrf.SetReceiveAddressLong(nucleo_1_address, Pipe.Pipe_0);
-                        nrf.SetTransmitAddress(nucleo_1_address);
-                        nrf.SendPayload(payload);
-
-                        var status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
-
-                        if (status.MAX_RT)
-                        {
-                            LogFailedAck(nrf, nucleo_1_address);
-                        }
-
-                        nrf.ClearInterruptFlags(true, true, true);
-
-                        Thread.Sleep(50);
-
-                        nrf.SetReceiveAddressLong(nucleo_2_address, Pipe.Pipe_0);
-                        nrf.SetTransmitAddress(nucleo_2_address);
-                        nrf.SendPayload(payload);
-
-                        status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
-
-                        if (status.MAX_RT)
-                        {
-                            LogFailedAck(nrf, nucleo_2_address);
-                        }
-
-                        nrf.ClearInterruptFlags(true, true, true);
-
-                        Thread.Sleep(50);
+                        LogFailedAck(nrf, nucleo_1_address);
                     }
+
+                    nrf.ClearInterruptFlags(true, true, true);
+
+                    Thread.Sleep(50);
+
+                    nrf.SetReceiveAddressLong(nucleo_2_address, Pipe.Pipe_0);
+                    nrf.SetTransmitAddress(nucleo_2_address);
+                    nrf.SendPayload(payload);
+
+                    status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
+
+                    if (status.MAX_RT)
+                    {
+                        LogFailedAck(nrf, nucleo_2_address);
+                    }
+
+                    nrf.ClearInterruptFlags(true, true, true);
+
+                    Thread.Sleep(50);
                 }
             }
             else
