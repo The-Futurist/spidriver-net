@@ -1,4 +1,5 @@
 ﻿using Radio.Nordic.NRF24L01P;
+using SpiDriver;
 using static Radio.Nordic.NRF24L01P.Literals;
 
 namespace UnitTests
@@ -19,7 +20,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void ConnectTest()
         {
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT,Output.A);
             nrf.ConnectUSB();
         }
         [TestMethod]
@@ -28,7 +29,7 @@ namespace UnitTests
         {
             CONFIG restore, changed;
 
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
 
             nrf.ConnectUSB();
 
@@ -72,7 +73,7 @@ namespace UnitTests
         public void EN_AA()
         {
             EN_AA restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<EN_AA>();
             changed = nrf.ReadRegister<EN_AA>();
@@ -104,7 +105,7 @@ namespace UnitTests
         public void RX_ADDR_P0()
         {
             RX_ADDR_P0 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_ADDR_P0>();
             changed = nrf.ReadRegister<RX_ADDR_P0>();
@@ -125,7 +126,7 @@ namespace UnitTests
         public void RX_ADDR_P1()
         {
             RX_ADDR_P1 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_ADDR_P1>();
             changed = nrf.ReadRegister<RX_ADDR_P1>();
@@ -146,7 +147,7 @@ namespace UnitTests
         public void RX_ADDR_P2()
         {
             RX_ADDR_P2 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_ADDR_P2>();
             changed = nrf.ReadRegister<RX_ADDR_P2>();
@@ -163,7 +164,7 @@ namespace UnitTests
         public void RX_ADDR_P3()
         {
             RX_ADDR_P3 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_ADDR_P3>();
             changed = nrf.ReadRegister<RX_ADDR_P3>();
@@ -180,7 +181,7 @@ namespace UnitTests
         public void RX_ADDR_P4()
         {
             RX_ADDR_P4 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_ADDR_P4>();
             changed = nrf.ReadRegister<RX_ADDR_P4>();
@@ -197,7 +198,7 @@ namespace UnitTests
         public void RX_ADDR_P5()
         {
             RX_ADDR_P5 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_ADDR_P5>();
             changed = nrf.ReadRegister<RX_ADDR_P5>();
@@ -214,7 +215,7 @@ namespace UnitTests
         public void TX_ADDR()
         {
             TX_ADDR restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<TX_ADDR>();
             changed = nrf.ReadRegister<TX_ADDR>();
@@ -235,7 +236,7 @@ namespace UnitTests
         public void RX_PW_P0()
         {
             RX_PW_P0 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_PW_P0>();
             changed = nrf.ReadRegister<RX_PW_P0>();
@@ -252,7 +253,7 @@ namespace UnitTests
         public void RX_PW_P1()
         {
             RX_PW_P1 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_PW_P1>();
             changed = nrf.ReadRegister<RX_PW_P1>();
@@ -269,7 +270,7 @@ namespace UnitTests
         public void RX_PW_P2()
         {
             RX_PW_P2 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_PW_P2>();
             changed = nrf.ReadRegister<RX_PW_P2>();
@@ -286,7 +287,7 @@ namespace UnitTests
         public void RX_PW_P3()
         {
             RX_PW_P3 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_PW_P3>();
             changed = nrf.ReadRegister<RX_PW_P3>();
@@ -303,7 +304,7 @@ namespace UnitTests
         public void RX_PW_P4()
         {
             RX_PW_P4 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_PW_P4>();
             changed = nrf.ReadRegister<RX_PW_P4>();
@@ -320,7 +321,7 @@ namespace UnitTests
         public void RX_PW_P5()
         {
             RX_PW_P5 restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RX_PW_P5>();
             changed = nrf.ReadRegister<RX_PW_P5>();
@@ -337,7 +338,7 @@ namespace UnitTests
         public void DYNPD()
         {
             DYNPD restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<DYNPD>();
             changed = nrf.ReadRegister<DYNPD>();
@@ -369,7 +370,7 @@ namespace UnitTests
         public void SETUP_AW()
         {
             SETUP_AW restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<SETUP_AW>();
             changed = nrf.ReadRegister<SETUP_AW>();
@@ -386,7 +387,7 @@ namespace UnitTests
         public void SETUP_RETR()
         {
             SETUP_RETR restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<SETUP_RETR>();
             changed = nrf.ReadRegister<SETUP_RETR>();
@@ -406,7 +407,7 @@ namespace UnitTests
         public void RF_CH()
         {
             RF_CH restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT    , Output.A  );
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RF_CH>();
             changed = nrf.ReadRegister<RF_CH>();
@@ -423,7 +424,7 @@ namespace UnitTests
         public void RF_SETUP()
         {
             RF_SETUP restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A  );
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<RF_SETUP>();
             changed = nrf.ReadRegister<RF_SETUP>();
@@ -454,7 +455,7 @@ namespace UnitTests
         public void FEATURE()
         {
             FEATURE restore, changed;
-            using NRF24L01P nrf = new NRF24L01P(PORT);
+            using NRF24L01P nrf = new NRF24L01P(PORT, Output.A);
             nrf.ConnectUSB();
             restore = nrf.ReadRegister<FEATURE>();
             changed = nrf.ReadRegister<FEATURE>();

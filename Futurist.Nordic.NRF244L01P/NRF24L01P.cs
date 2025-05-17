@@ -16,10 +16,11 @@ namespace Radio.Nordic.NRF24L01P
         private int frequency = 2400;
         private int retries = 3;
         private int interval;
-
-        public NRF24L01P(string comport)
+        private Output ce_pin;
+        public NRF24L01P(string comport, Output CEPin)
         {
             this.device = new Device(comport);
+            this.ce_pin = CEPin;
         }
         public void ConnectUSB()
         {
@@ -68,7 +69,7 @@ namespace Radio.Nordic.NRF24L01P
         }
         public Pin CE
         {
-            set => device.SetOutput(Output.CS, value == Pin.Low ? false : true);
+            set => device.SetOutput(ce_pin, value == Pin.Low ? false : true);
         }
         public int Channel { get => channel;  }
         public int Interval { get => interval; }
@@ -84,11 +85,11 @@ namespace Radio.Nordic.NRF24L01P
         }
         public void SetCELow()
         {
-            device.SetOutput(Output.A, false);
+            device.SetOutput(ce_pin, false);
         }
         public void SetCEHigh()
         {
-            device.SetOutput(Output.A, true);
+            device.SetOutput(ce_pin, true);
         }
 
         public void Reset()
@@ -194,6 +195,9 @@ namespace Radio.Nordic.NRF24L01P
         }
         public void ConfigureRadio(byte Channel, OutputPower Power, DataRate Rate)
         {
+            if (channel > 124)
+                throw new ArgumentException("The value must be >= 0 and <= 124.", nameof(channel));
+
             var rf_ch = ReadRegister<RF_CH>();
 
             rf_ch.CH = Channel;
@@ -375,19 +379,17 @@ namespace Radio.Nordic.NRF24L01P
             Thread.Sleep(2); // 1.5 mS or more is the required settling time. 
         }
 
-        public void SetReceiveAddressLong(ulong Address, Pipe Pipe)
+        public void SetReceiveAddressLong(Address Address, Pipe Pipe)
         {
-            byte[] address = BitConverter.GetBytes(Address);
-            byte[] buffer = new byte[5];
-            Array.Copy(address, buffer,5);
-            Array.Reverse(buffer);
+            if (Pipe != Pipe.Pipe_0 && Pipe != Pipe.Pipe_1)
+                throw new ArgumentException("Only pipe's 0 and 1 are permitted.", nameof (Pipe));
 
             switch ((byte)Pipe)
             {
                 case 0:
                     {
                         var reg = ReadRegister<RX_ADDR_P0>();
-                        reg.ADDR = buffer;
+                        reg.ADDR = Address.Bytes;
                         WriteRegister(reg);
                         break;
                     }
@@ -395,22 +397,17 @@ namespace Radio.Nordic.NRF24L01P
                 case 1:
                     {
                         var reg = ReadRegister<RX_ADDR_P1>();
-                        reg.ADDR = buffer;
+                        reg.ADDR = Address.Bytes;
                         WriteRegister(reg);
                         break;
                     }
             }
         }
 
-        public void SetTransmitAddress(ulong Address)
+        public void SetTransmitAddress(Address Address)
         {
-            byte[] address = BitConverter.GetBytes(Address);
-            byte[] buffer = new byte[5];
-            Array.Copy(address, buffer, 5);
-            Array.Reverse(buffer);
-
             var txaddr = ReadRegister<TX_ADDR>();
-            txaddr.ADDR = buffer;
+            txaddr.ADDR = Address.Bytes;
             WriteRegister(txaddr);
         }
 
@@ -428,6 +425,17 @@ namespace Radio.Nordic.NRF24L01P
             while (stopwatch.ElapsedTicks < (20 * (System.Diagnostics.Stopwatch.Frequency / 1_000_000))) { }
             SetCELow();
 
+        }
+        public STATUS PollStatusUntil(Func<STATUS,bool> func)
+        {
+            var reg = ReadRegister<STATUS>();
+
+            while (!func(reg))
+            {
+                reg = ReadRegister<STATUS>();
+            }
+
+            return reg;
         }
         protected virtual void Dispose(bool disposing)
         {
