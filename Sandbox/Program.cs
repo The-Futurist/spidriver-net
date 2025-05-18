@@ -5,12 +5,13 @@ using SpiDriver;
 namespace Sandbox
 {
     // SEE: https://learn.microsoft.com/en-us/dotnet/iot/usb
+    // SEE: https://cdn.sparkfun.com/assets/3/d/8/5/1/nRF24L01P_Product_Specification_1_0.pdf
 
     class Program
     {
         private static Address nucleo_1_address = new(0x1951383138); // board's ID address
         private static Address nucleo_2_address = new(0x0F50334636); // board's ID address
-        private static byte[] payload = [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88];
+        private static byte[] payload = [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0xe3, 0x41, 0x7f];
 
         static void Main(string[] argv)
         {
@@ -32,6 +33,16 @@ namespace Sandbox
                     nrf.SetCRC(true, true);
                     nrf.SetAddressWidth(5);
                     nrf.SetAutoAckRetries(Interval: 1, MaxRetries: 1);
+
+                    var ftr = nrf.ReadRegister<FEATURE>();
+                    ftr.EN_DPL = true;
+                    nrf.WriteRegister(ftr);
+
+                    var dyn = nrf.ReadRegister<DYNPD>();
+                    dyn.DPL_P0 = true;
+                    nrf.WriteRegister(dyn);
+
+
                     nrf.PowerUp();
 
                     while (true)
