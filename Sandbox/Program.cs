@@ -14,60 +14,78 @@ namespace Sandbox
 
         static void Main(string[] argv)
         {
-            if (NRF24L01P.TryGetNrfComPort(out var port))
+            try
             {
-                using NRF24L01P nrf = new(port, Output.A);
-                nrf.ConnectUSB();
-                nrf.Reset();
-                nrf.ConfigureRadio(Channel: 9, OutputPower.Low, DataRate.Med);
-                nrf.ClearInterruptFlags(true, true, true);
-                nrf.SetPipeState(Pipe.Pipe_0, true);
-                nrf.SetPipeState(Pipe.Pipe_1, false);
-
-                nrf.SetAutoAck(Pipe.Pipe_0, true);
-                nrf.SetTransmitMode();
-                nrf.SetCRC(true, true);
-                nrf.SetAddressWidth(5);
-                nrf.SetAutoAckRetries(Interval: 1, MaxRetries: 1);
-                nrf.PowerUp();
-
-                while (true)
+                if (NRF24L01P.TryGetNrfComPort(out var port))
                 {
-                    nrf.SetReceiveAddressLong(nucleo_1_address, Pipe.Pipe_0);
-                    nrf.SetTransmitAddress(nucleo_1_address);
-                    nrf.SendPayload(payload);
+                    using NRF24L01P nrf = new(port, Output.A);
 
-                    var status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
-
-                    if (status.MAX_RT)
-                    {
-                        LogFailedAck(nrf, nucleo_1_address);
-                    }
-
+                    nrf.ConnectUSB();
+                    nrf.Reset();
+                    nrf.ConfigureRadio(Channel: 9, OutputPower.Low, DataRate.Med);
                     nrf.ClearInterruptFlags(true, true, true);
+                    nrf.SetPipeState(Pipe.Pipe_0, true);
+                    nrf.SetPipeState(Pipe.Pipe_1, false);
 
-                    Thread.Sleep(50);
+                    nrf.SetAutoAck(Pipe.Pipe_0, true);
+                    nrf.SetTransmitMode();
+                    nrf.SetCRC(true, true);
+                    nrf.SetAddressWidth(5);
+                    nrf.SetAutoAckRetries(Interval: 1, MaxRetries: 1);
+                    nrf.PowerUp();
 
-                    nrf.SetReceiveAddressLong(nucleo_2_address, Pipe.Pipe_0);
-                    nrf.SetTransmitAddress(nucleo_2_address);
-                    nrf.SendPayload(payload);
-
-                    status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
-
-                    if (status.MAX_RT)
+                    while (true)
                     {
-                        LogFailedAck(nrf, nucleo_2_address);
+                        // Send short messsage to first board
+
+                        nrf.SetReceiveAddressLong(nucleo_1_address, Pipe.Pipe_0);
+                        nrf.SetTransmitAddress(nucleo_1_address);
+                        nrf.SendPayload(payload);
+
+                        var status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
+
+                        if (status.MAX_RT)
+                        {
+                            LogFailedAck(nrf, nucleo_1_address);
+                        }
+
+                        nrf.ClearInterruptFlags(true, true, true);
+
+                        Thread.Sleep(50);
+
+                        // Send short messsage to second board
+
+                        nrf.SetReceiveAddressLong(nucleo_2_address, Pipe.Pipe_0);
+                        nrf.SetTransmitAddress(nucleo_2_address);
+                        nrf.SendPayload(payload);
+
+                        status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
+
+                        if (status.MAX_RT)
+                        {
+                            LogFailedAck(nrf, nucleo_2_address);
+                        }
+
+                        nrf.ClearInterruptFlags(true, true, true);
+
+                        Thread.Sleep(50);
                     }
-
-                    nrf.ClearInterruptFlags(true, true, true);
-
-                    Thread.Sleep(50);
                 }
+                else
+                {
+                    Console.WriteLine("No NRF Device Port was found on this computer");
+                }
+
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("No NRF Device Port was found on this computer");
+                Console.WriteLine(ex.Message);
             }
+            finally
+            {
+                Console.ResetColor();
+            }
+
         }
 
         private static string GetAddressText(ulong Address)
