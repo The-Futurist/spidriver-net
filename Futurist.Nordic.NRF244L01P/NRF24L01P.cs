@@ -420,6 +420,12 @@ namespace Radio.Nordic.NRF24L01P
             SetCELow();
 
         }
+        public void FlushTransmitBuffer()
+        {
+            SetCSLow();
+            device.Write([(byte)COMMNAND.FLUSH_TX], 0, 1);
+            SetCSHigh();
+        }
         public STATUS PollStatusUntil(Func<STATUS,bool> func)
         {
             var reg = ReadRegister<STATUS>();

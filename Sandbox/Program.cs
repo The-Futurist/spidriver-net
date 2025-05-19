@@ -1,6 +1,8 @@
 ﻿using Futurist.Nordic.NRF244L01P;
 using Radio.Nordic.NRF24L01P;
 using SpiDriver;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 namespace Sandbox
 {
@@ -11,7 +13,8 @@ namespace Sandbox
     {
         private static Address nucleo_1_address = new(0x1951383138); // board's ID address
         private static Address nucleo_2_address = new(0x0F50334636); // board's ID address
-        private static byte[] payload = [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0xe3, 0x41, 0x7f];
+        private static byte[] payload = [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]; //, 0xe3, 0x41, 0x7f];
+        private static ulong counter = 0;
 
         static void Main(string[] argv)
         {
@@ -32,7 +35,11 @@ namespace Sandbox
                     nrf.SetTransmitMode();
                     nrf.SetCRC(true, true);
                     nrf.SetAddressWidth(5);
-                    nrf.SetAutoAckRetries(Interval: 1, MaxRetries: 1);
+                    nrf.SetAutoAckRetries(Interval: 3, MaxRetries: 5);   // this might be the cause of the receiver lockup, if the RX sends an ack
+                                                                         // but the TX never gets it, the TX will resend and potetnially re-trigger
+                                                                         // an interrupt at the RX while in the middle of processing the earllier 
+                                                                         // (received) message. 
+
 
                     var ftr = nrf.ReadRegister<FEATURE>();
                     ftr.EN_DPL = true;
@@ -47,16 +54,22 @@ namespace Sandbox
 
                     while (true)
                     {
+                        // Create a new distinct payload for testing purposes
+
+                        byte[] msg = BitConverter.GetBytes(counter++);
+                        Array.Reverse(msg);
+
                         // Send short messsage to first board
 
                         nrf.SetReceiveAddressLong(nucleo_1_address, Pipe.Pipe_0);
                         nrf.SetTransmitAddress(nucleo_1_address);
-                        nrf.SendPayload(payload);
+                        nrf.SendPayload(msg);
 
                         var status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
 
                         if (status.MAX_RT)
                         {
+                            nrf.FlushTransmitBuffer();
                             LogFailedAck(nrf, nucleo_1_address);
                         }
 
@@ -68,12 +81,13 @@ namespace Sandbox
 
                         nrf.SetReceiveAddressLong(nucleo_2_address, Pipe.Pipe_0);
                         nrf.SetTransmitAddress(nucleo_2_address);
-                        nrf.SendPayload(payload);
+                        nrf.SendPayload(msg);
 
                         status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
 
                         if (status.MAX_RT)
                         {
+                            nrf.FlushTransmitBuffer();
                             LogFailedAck(nrf, nucleo_2_address);
                         }
 
@@ -110,7 +124,7 @@ namespace Sandbox
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write(DateTime.Now);
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine($" No auto-ack received. STN: {addr} CHAN: {nrf.Channel} FREQ: {2400 + nrf.Channel} RET: {nrf.Retries} INT: {nrf.Interval} TOT: {(nrf.Retries + 1) * nrf.Interval}");
+            Console.WriteLine($" No auto-ack received from STN: {addr} CHAN: {nrf.Channel} FREQ: {2400 + nrf.Channel} RET: {nrf.Retries} INT: {nrf.Interval} TOT: {(nrf.Retries + 1) * nrf.Interval}");
         }
     }
 }
