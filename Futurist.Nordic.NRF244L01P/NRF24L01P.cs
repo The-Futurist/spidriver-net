@@ -1,6 +1,4 @@
-﻿using Microsoft.Win32;
-using SpiDriver;
-using System.CodeDom;
+﻿using SpiDriver;
 using System.Management;
 using static Radio.Nordic.NRF24L01P.Pipe;
 using static Radio.Nordic.NRF24L01P.DataRate;

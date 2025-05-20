@@ -1,7 +1,4 @@
-﻿using static Radio.Nordic.NRF24L01P.Literals;
-
-
-namespace Radio.Nordic.NRF24L01P
+﻿namespace Radio.Nordic.NRF24L01P
 {
     public class RF_SETUP : REGISTER_SHORT
     {

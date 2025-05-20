@@ -1,7 +1,5 @@
 ﻿using Radio.Nordic.NRF24L01P;
 using SpiDriver;
-using System.Diagnostics;
-using System.Diagnostics.Metrics;
 
 namespace Sandbox
 {
@@ -87,7 +85,7 @@ namespace Sandbox
                 }
                 else
                 {
-                    Console.WriteLine("No NRF Device Port was found on this computer");
+                    Console.WriteLine("No NRF Device COM Port was found on this computer");
                 }
 
             }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Radio.Nordic.NRF24L01P
+﻿namespace Radio.Nordic.NRF24L01P
 {
     public class Address
     {
