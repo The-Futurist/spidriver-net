@@ -64,7 +64,7 @@ namespace Radio.Nordic.NRF24L01P
         {
             set => device.SetOutput(ce_pin, value != Pin.Low);
         }
-        public int Channel { get => channel;  }
+        public int Channel { get => channel; }
         public int Interval { get => interval; }
         public int Retries { get => retries; }
         public int Frequency { get => frequency; }
@@ -91,7 +91,7 @@ namespace Radio.Nordic.NRF24L01P
             EN_AA en_aa = new();
             EN_RXADDR en_rxaddr = new();
             SETUP_AW setup_aw = new();
-            SETUP_RETR setup_retr  = new();
+            SETUP_RETR setup_retr = new();
             RF_CH rf_ch = new();
             RF_SETUP rf_setup = new();
             STATUS status = new();
@@ -339,7 +339,7 @@ namespace Radio.Nordic.NRF24L01P
 
         public void SetAddressWidth(byte ByteWidth)
         {
-            if (ByteWidth < 3|| ByteWidth > 5)
+            if (ByteWidth < 3 || ByteWidth > 5)
                 throw new ArgumentException("Value must be >= 3 and <= 5", nameof(ByteWidth));
 
             var reg = ReadRegister<SETUP_AW>();
@@ -350,7 +350,7 @@ namespace Radio.Nordic.NRF24L01P
         public void SetAutoAckRetries(byte Interval, byte MaxRetries)
         {
             if (Interval > 15)
-                throw new ArgumentException("Value must be >= 0 and <= 15",nameof(Interval));
+                throw new ArgumentException("Value must be >= 0 and <= 15", nameof(Interval));
 
             if (MaxRetries > 15)
                 throw new ArgumentException("Value must be >= 0 and <= 15", nameof(MaxRetries));
@@ -364,7 +364,7 @@ namespace Radio.Nordic.NRF24L01P
             retries = MaxRetries;
         }
 
-        public void SetDynamicPayload (bool State)
+        public void SetDynamicPayload(bool State)
         {
             var ftr = ReadRegister<FEATURE>();
             ftr.EN_DPL = State;
@@ -411,7 +411,7 @@ namespace Radio.Nordic.NRF24L01P
         public void SetReceiveAddressLong(Address Address, Pipe Pipe)
         {
             if (Pipe != Pipe.Pipe_0 && Pipe != Pipe.Pipe_1)
-                throw new ArgumentException("Only pipe's 0 and 1 are permitted.", nameof (Pipe));
+                throw new ArgumentException("Only pipe's 0 and 1 are permitted.", nameof(Pipe));
 
             switch (Pipe)
             {
@@ -468,7 +468,7 @@ namespace Radio.Nordic.NRF24L01P
             device.Write([(byte)COMMNAND.FLUSH_TX], 0, 1);
             SetCSHigh();
         }
-        public STATUS PollStatusUntil(Func<STATUS,bool> func)
+        public STATUS PollStatusUntil(Func<STATUS, bool> func)
         {
             var reg = ReadRegister<STATUS>();
 
