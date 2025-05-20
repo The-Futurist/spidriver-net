@@ -413,19 +413,19 @@ namespace Radio.Nordic.NRF24L01P
             if (Pipe != Pipe.Pipe_0 && Pipe != Pipe.Pipe_1)
                 throw new ArgumentException("Only pipe's 0 and 1 are permitted.", nameof (Pipe));
 
-            switch ((byte)Pipe)
+            switch (Pipe)
             {
-                case 0:
+                case Pipe_0:
                     {
-                        var reg = ReadRegister<RX_ADDR_P0>();
+                        RX_ADDR_P0 reg = new();
                         reg.ADDR = Address.Bytes;
                         WriteRegister(reg);
                         break;
                     }
 
-                case 1:
+                case Pipe_1:
                     {
-                        var reg = ReadRegister<RX_ADDR_P1>();
+                        RX_ADDR_P1 reg = new();
                         reg.ADDR = Address.Bytes;
                         WriteRegister(reg);
                         break;
@@ -435,16 +435,23 @@ namespace Radio.Nordic.NRF24L01P
 
         public void SetTransmitAddress(Address Address)
         {
-            var txaddr = ReadRegister<TX_ADDR>();
+            TX_ADDR txaddr = new();
             txaddr.ADDR = Address.Bytes;
             WriteRegister(txaddr);
         }
 
         public void SendPayload(byte[] Buffer)
         {
+            SendPayload(Buffer, Buffer.Length);
+        }
+        public void SendPayload(byte[] Buffer, int Bytes)
+        {
+            if (Bytes > Buffer.Length)
+                throw new ArgumentOutOfRangeException(nameof(Bytes));
+
             SetCSLow();
             device.Write([(byte)((byte)COMMNAND.W_TX_PAYLOAD)], 0, 1);
-            device.Write(Buffer, 0, Buffer.Length);
+            device.Write(Buffer, 0, Bytes);
             SetCSHigh();
 
             // We must pulse the CE pin for > 10 uS, this code strives to spin for about 20 uS
