@@ -420,7 +420,7 @@ namespace Radio.Nordic.NRF24L01P
             SetCELow();
 
         }
-        public void FlushTransmitBuffer()
+        public void FlushTransmitFifo()
         {
             SetCSLow();
             device.Write([(byte)COMMNAND.FLUSH_TX], 0, 1);

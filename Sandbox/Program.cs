@@ -35,7 +35,7 @@ namespace Sandbox
                     nrf.SetTransmitMode();
                     nrf.SetCRC(true, true);
                     nrf.SetAddressWidth(5);
-                    nrf.SetAutoAckRetries(Interval: 3, MaxRetries: 5);   // this might be the cause of the receiver lockup, if the RX sends an ack
+                    nrf.SetAutoAckRetries(Interval: 0, MaxRetries: 5);   // this might be the cause of the receiver lockup, if the RX sends an ack
                                                                          // but the TX never gets it, the TX will resend and potetnially re-trigger
                                                                          // an interrupt at the RX while in the middle of processing the earllier 
                                                                          // (received) message. 
@@ -69,7 +69,7 @@ namespace Sandbox
 
                         if (status.MAX_RT)
                         {
-                            nrf.FlushTransmitBuffer();
+                            nrf.FlushTransmitFifo();
                             LogFailedAck(nrf, nucleo_1_address);
                         }
 
@@ -87,7 +87,7 @@ namespace Sandbox
 
                         if (status.MAX_RT)
                         {
-                            nrf.FlushTransmitBuffer();
+                            nrf.FlushTransmitFifo();
                             LogFailedAck(nrf, nucleo_2_address);
                         }
 
