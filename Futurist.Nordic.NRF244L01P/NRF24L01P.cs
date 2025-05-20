@@ -1,9 +1,10 @@
-﻿using Futurist.Nordic.NRF244L01P;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using SpiDriver;
 using System.CodeDom;
 using System.Management;
-    
+using static Radio.Nordic.NRF24L01P.Pipe;
+using static Radio.Nordic.NRF24L01P.DataRate;
+
 // SEE: https://cdn.sparkfun.com/assets/3/d/8/5/1/nRF24L01P_Product_Specification_1_0.pdf
 
 namespace Radio.Nordic.NRF24L01P
@@ -204,19 +205,19 @@ namespace Radio.Nordic.NRF24L01P
 
             switch (Rate) // TODO validate this arg
             {
-                case DataRate.Min:    // min rate
+                case Min:    // min rate
                     {
                         rf_setup.RF_DR_LOW = true;
                         rf_setup.RF_DR_HIGH = false;
                         break;
                     }
-                case DataRate.Max:    // mmax rate
+                case Max:    // mmax rate
                     {
                         rf_setup.RF_DR_LOW = false;
                         rf_setup.RF_DR_HIGH = true;
                         break;
                     }
-                case DataRate.Med:    // med rate
+                case Med:    // med rate
                     {
                         rf_setup.RF_DR_LOW = false;
                         rf_setup.RF_DR_HIGH = false;
@@ -246,34 +247,34 @@ namespace Radio.Nordic.NRF24L01P
         {
             var reg = ReadRegister<EN_RXADDR>();
 
-            switch ((byte)Pipe)
+            switch (Pipe)
             {
-                case 0:
+                case Pipe_0:
                     {
                         reg.ERX_P0 = State;
                         break;
                     }
-                case 1:
+                case Pipe_1:
                     {
                         reg.ERX_P1 = State;
                         break;
                     }
-                case 2:
+                case Pipe_2:
                     {
                         reg.ERX_P2 = State;
                         break;
                     }
-                case 3:
+                case Pipe_3:
                     {
                         reg.ERX_P3 = State;
                         break;
                     }
-                case 4:
+                case Pipe_4:
                     {
                         reg.ERX_P4 = State;
                         break;
                     }
-                case 5:
+                case Pipe_5:
                     {
                         reg.ERX_P5 = State;
                         break;
@@ -286,34 +287,34 @@ namespace Radio.Nordic.NRF24L01P
         {
             var reg = ReadRegister<EN_AA>();
 
-            switch ((byte)Pipe)
+            switch (Pipe)
             {
-                case 0:
+                case Pipe_0:
                     {
                         reg.ENAA_P0 = State;
                         break;
                     }
-                case 1:
+                case Pipe_1:
                     {
                         reg.ENAA_P1 = State;
                         break;
                     }
-                case 2:
+                case Pipe_2:
                     {
                         reg.ENAA_P2 = State;
                         break;
                     }
-                case 3:
+                case Pipe_3:
                     {
                         reg.ENAA_P3 = State;
                         break;
                     }
-                case 4:
+                case Pipe_4:
                     {
                         reg.ENAA_P4 = State;
                         break;
                     }
-                case 5:
+                case Pipe_5:
                     {
                         reg.ENAA_P5 = State;
                         break;
@@ -363,6 +364,42 @@ namespace Radio.Nordic.NRF24L01P
 
             interval = 250 + (250 * Interval);
             retries = MaxRetries;
+        }
+
+        public void SetDynamicPayload (bool State)
+        {
+            var ftr = ReadRegister<FEATURE>();
+            ftr.EN_DPL = State;
+            WriteRegister(ftr);
+        }
+
+        public void SetDynamicPipe(Pipe Pipe, bool State)
+        {
+            var dyn = ReadRegister<DYNPD>();
+
+            switch (Pipe)
+            {
+                case Pipe_0:
+                    dyn.DPL_P0 = State;
+                    break;
+                case Pipe_1:
+                    dyn.DPL_P1 = State;
+                    break;
+                case Pipe_2:
+                    dyn.DPL_P2 = State;
+                    break;
+                case Pipe_3:
+                    dyn.DPL_P3 = State;
+                    break;
+                case Pipe_4:
+                    dyn.DPL_P4 = State;
+                    break;
+                case Pipe_5:
+                    dyn.DPL_P5 = State;
+                    break;
+            }
+
+            WriteRegister(dyn);
         }
 
         public void PowerUp()

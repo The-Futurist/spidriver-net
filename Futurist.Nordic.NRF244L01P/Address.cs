@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Futurist.Nordic.NRF244L01P
+namespace Radio.Nordic.NRF24L01P
 {
     public class Address
     {

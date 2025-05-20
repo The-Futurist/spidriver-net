@@ -1,5 +1,4 @@
-﻿using Futurist.Nordic.NRF244L01P;
-using Radio.Nordic.NRF24L01P;
+﻿using Radio.Nordic.NRF24L01P;
 using SpiDriver;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
@@ -35,20 +34,10 @@ namespace Sandbox
                     nrf.SetTransmitMode();
                     nrf.SetCRC(true, true);
                     nrf.SetAddressWidth(5);
-                    nrf.SetAutoAckRetries(Interval: 0, MaxRetries: 5);   // this might be the cause of the receiver lockup, if the RX sends an ack
-                                                                         // but the TX never gets it, the TX will resend and potetnially re-trigger
-                                                                         // an interrupt at the RX while in the middle of processing the earllier 
-                                                                         // (received) message. 
+                    nrf.SetAutoAckRetries(Interval: 0, MaxRetries: 5);
 
-
-                    var ftr = nrf.ReadRegister<FEATURE>();
-                    ftr.EN_DPL = true;
-                    nrf.WriteRegister(ftr);
-
-                    var dyn = nrf.ReadRegister<DYNPD>();
-                    dyn.DPL_P0 = true;
-                    nrf.WriteRegister(dyn);
-
+                    nrf.SetDynamicPayload(true);
+                    nrf.SetDynamicPipe(Pipe.Pipe_0, true);
 
                     nrf.PowerUp();
 
@@ -75,7 +64,7 @@ namespace Sandbox
 
                         nrf.ClearInterruptFlags(true, true, true);
 
-                        Thread.Sleep(50);
+                        Thread.Sleep(10);
 
                         // Send short messsage to second board
 
@@ -93,7 +82,7 @@ namespace Sandbox
 
                         nrf.ClearInterruptFlags(true, true, true);
 
-                        Thread.Sleep(50);
+                        Thread.Sleep(10);
                     }
                 }
                 else
