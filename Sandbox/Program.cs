@@ -1,5 +1,6 @@
 ﻿using Radio.Nordic.NRF24L01P;
 using SpiDriver;
+using System.Text;
 
 namespace Sandbox
 {
@@ -12,9 +13,16 @@ namespace Sandbox
         private static Address nucleo_2_address = new(0x0F50334636); // board's ID address
         private static byte[] payload = [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]; //, 0xe3, 0x41, 0x7f];
         private static ulong counter = 0;
+        private static string text = "I am a test messags of length 32";
 
         static void Main(string[] argv)
         {
+            byte[] message = Encoding.UTF8.GetBytes(text);
+
+            Random rand = new Random(); // Create Random instance
+
+            int randsize = rand.Next(1, 33); // Generates a number from 1 to 32
+
             try
             {
                 if (NRF24L01P.TryGetNrfComPort(out var port))
@@ -32,8 +40,9 @@ namespace Sandbox
                     nrf.SetTransmitMode();
                     nrf.SetCRC(true, true);
                     nrf.SetAddressWidth(5);
-                    nrf.SetAutoAckRetries(Interval: 0, MaxRetries: 5);
+                    nrf.SetAutoAckRetries(Interval: 1, MaxRetries: 10);
 
+                    // Variable length payloads over pipe 0 (the boards listening address)
                     nrf.SetDynamicPayload(true);
                     nrf.SetDynamicPipe(Pipe.Pipe_0, true);
 
@@ -41,16 +50,14 @@ namespace Sandbox
 
                     while (true)
                     {
-                        // Create a new distinct payload for testing purposes
-
-                        byte[] msg = BitConverter.GetBytes(counter++);
-                        Array.Reverse(msg);
-
                         // Send short messsage to first board
 
                         nrf.SetReceiveAddressLong(nucleo_1_address, Pipe.Pipe_0);
                         nrf.SetTransmitAddress(nucleo_1_address);
-                        nrf.SendPayload(msg);
+
+                        randsize = rand.Next(1, 33);
+
+                        nrf.SendPayload(message, randsize);
 
                         var status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
 
@@ -68,7 +75,10 @@ namespace Sandbox
 
                         nrf.SetReceiveAddressLong(nucleo_2_address, Pipe.Pipe_0);
                         nrf.SetTransmitAddress(nucleo_2_address);
-                        nrf.SendPayload(msg);
+
+                        randsize = rand.Next(1, 33);
+
+                        nrf.SendPayload(message, randsize);
 
                         status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
 
