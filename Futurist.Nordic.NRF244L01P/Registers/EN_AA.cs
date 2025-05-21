@@ -1,28 +1,34 @@
 ﻿namespace Radio.Nordic.NRF24L01P
 {
-    public class EN_AA : REGISTER_SHORT
+    public struct EN_AA : IREGISTER
     {
+        public REGISTER_SHORT Register;
+
         public EN_AA()
         {
-            Id = 0x01;
+            Register.Id = 0x01;
         }
         public bool ENAA_P0
-        { get => BIT0; set => BIT0 = value;
+        { get => Register.BIT0; set => Register.BIT0 = value;
         }
         public bool ENAA_P1
-        { get => BIT1; set => BIT1 = value;
+        { get => Register.BIT1; set => Register.BIT1 = value;
         }
         public bool ENAA_P2
-        { get => BIT2; set => BIT2 = value;
+        { get => Register.BIT2; set => Register.BIT2 = value;
         }
         public bool ENAA_P3
-        { get => BIT3; set => BIT3 = value;
+        { get => Register.BIT3; set => Register.BIT3 = value;
         }
         public bool ENAA_P4
-        { get => BIT4; set => BIT4 = value;
+        { get => Register.BIT4; set => Register.BIT4 = value;
         }
         public bool ENAA_P5
-        { get => BIT5; set => BIT5 = value;
+        { get => Register.BIT5; set => Register.BIT5 = value;
         }
+
+        public byte Id => Register.Id;
+
+        public int Length => Register.Length;
     }
 }

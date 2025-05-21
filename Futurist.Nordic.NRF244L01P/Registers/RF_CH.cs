@@ -1,14 +1,21 @@
 ﻿namespace Radio.Nordic.NRF24L01P
 {
-    public class RF_CH : REGISTER_SHORT
+    public unsafe struct RF_CH : IREGISTER
     {
+        public REGISTER_SHORT Register;
+
         public RF_CH()
         {
-            Id = 0x05;
+            Register.Id = 0x05;
         }
         public byte CH
         {
-            get => Register[0]; set => Register[0] = value;
+            get => Register.Register[0]; set => Register.Register[0] = value;
         }
+
+        public byte Id => Register.Id;
+
+        public int Length => Register.Length;
+
     }
 }
