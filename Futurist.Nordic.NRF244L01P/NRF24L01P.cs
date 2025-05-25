@@ -44,7 +44,7 @@ namespace Radio.Nordic.NRF24L01P
         {
             T register = new();
             SetCSLow();
-            device.Write([(byte)((byte)COMMNAND.R_REGISTER | register.Id)], 0, 1);
+            device.Write([COMMAND.R_REGISTER.OR(register.Id)], 0, 1);
             device.Read(register.Register, 0, register.Length);
             SetCSHigh();
             return register;
@@ -52,7 +52,7 @@ namespace Radio.Nordic.NRF24L01P
         public void WriteRegister(REGISTER register)
         {
             SetCSLow();
-            device.Write([(byte)((byte)COMMNAND.W_REGISTER | register.Id)], 0, 1);
+            device.Write([COMMAND.W_REGISTER.OR(register.Id)], 0, 1);
             device.Write(register.Register, 0, register.Length);
             SetCSHigh();
         }
@@ -108,6 +108,7 @@ namespace Radio.Nordic.NRF24L01P
             RX_PW_P3 rx_pw3 = new();
             RX_PW_P4 rx_pw4 = new();
             RX_PW_P5 rx_pw5 = new();
+            FEATURE feature= new FEATURE();
 
             config.EN_CRC = true;
 
@@ -164,6 +165,10 @@ namespace Radio.Nordic.NRF24L01P
             tx_addr.ADDR[3] = 0xE7;
             tx_addr.ADDR[4] = 0xE7;
 
+            feature.EN_DYN_ACK = false;
+            feature.EN_DPL = false;
+            feature.EN_ACK_PAY = false;
+
             WriteRegister(config);
             WriteRegister(en_aa);
             WriteRegister(en_rxaddr);
@@ -185,6 +190,9 @@ namespace Radio.Nordic.NRF24L01P
             WriteRegister(rx_pw3);
             WriteRegister(rx_pw4);
             WriteRegister(rx_pw5);
+            WriteRegister(feature);
+            FlushTransmitFifo();
+            FlushReceiveFifo();
         }
         public void ConfigureRadio(byte Channel, OutputPower Power, DataRate Rate)
         {
@@ -399,7 +407,12 @@ namespace Radio.Nordic.NRF24L01P
 
             WriteRegister(dyn);
         }
-
+        public void SetDynamicAck(bool State)
+        {
+            var ftr = ReadRegister<FEATURE>();
+            ftr.EN_DYN_ACK = State;
+            WriteRegister(ftr);
+        }
         public void PowerUp()
         {
             var reg = ReadRegister<CONFIG>();
@@ -440,17 +453,26 @@ namespace Radio.Nordic.NRF24L01P
             WriteRegister(txaddr);
         }
 
-        public void SendPayload(byte[] Buffer)
+        public void SendPayload(byte[] Buffer, bool NoAck = false)
         {
-            SendPayload(Buffer, Buffer.Length);
+            SendPayload(Buffer, Buffer.Length, NoAck);
         }
-        public void SendPayload(byte[] Buffer, int Bytes)
+        public void SendPayload(byte[] Buffer, int Bytes, bool NoAck = false)
         {
             if (Bytes > Buffer.Length)
                 throw new ArgumentOutOfRangeException(nameof(Bytes));
 
             SetCSLow();
-            device.Write([(byte)((byte)COMMNAND.W_TX_PAYLOAD)], 0, 1);
+
+            if (NoAck)
+            {
+                device.Write([COMMAND.W_TX_PAYLOAD_NO_ACK], 0, 1);
+            }
+            else
+            {
+                device.Write([COMMAND.W_TX_PAYLOAD], 0, 1);
+            }
+
             device.Write(Buffer, 0, Bytes);
             SetCSHigh();
 
@@ -465,9 +487,16 @@ namespace Radio.Nordic.NRF24L01P
         public void FlushTransmitFifo()
         {
             SetCSLow();
-            device.Write([(byte)COMMNAND.FLUSH_TX], 0, 1);
+            device.Write([COMMAND.FLUSH_TX], 0, 1);
             SetCSHigh();
         }
+        public void FlushReceiveFifo()
+        {
+            SetCSLow();
+            device.Write([COMMAND.FLUSH_RX], 0, 1);
+            SetCSHigh();
+        }
+
         public STATUS PollStatusUntil(Func<STATUS, bool> func)
         {
             var reg = ReadRegister<STATUS>();
