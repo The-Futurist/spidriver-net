@@ -27,6 +27,16 @@ namespace Radio.Nordic.NRF24L01P
             {
                 return MemoryMarshal.CreateSpan(ref Register[0], 5).ToArray();
             }
+            set
+            {
+                int X = 0;
+
+                foreach (byte b in value)
+                {
+                    Register[X++] = b;
+                }
+            }
+
         }
 
     }

@@ -10,19 +10,12 @@
         }
         public byte[] ADDR
         {
-            get
-            {
-                //return Register.Register;
-
-                Span<byte> buffer = new Span<byte>(ref Register.Register[0], 5);
-            }
-
-            set => Register.Register = value;
+            get => Register.BYTES;
+            set => Register.BYTES = value;
         }
 
         public byte Id => Register.Id;
 
         public int Length => Register.Length;
-
     }
 }
