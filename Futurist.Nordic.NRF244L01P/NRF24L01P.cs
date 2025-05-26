@@ -2,6 +2,7 @@
 using System.Management;
 using static Radio.Nordic.NRF24L01P.Pipe;
 using static Radio.Nordic.NRF24L01P.DataRate;
+using static Radio.Nordic.NRF24L01P.CRC;
 
 // SEE: https://cdn.sparkfun.com/assets/3/d/8/5/1/nRF24L01P_Product_Specification_1_0.pdf
 
@@ -27,8 +28,9 @@ namespace Radio.Nordic.NRF24L01P
         {
             Port = null;
 
-            using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'");
-            foreach (var obj in searcher.Get())
+            using var searcher = new ManagementObjectSearcher("SELECT Manufacturer, Name FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'").Get();
+
+            foreach (var obj in searcher)
             {
                 if (obj["Manufacturer"].ToString() == "FTDI")
                 {
@@ -191,6 +193,7 @@ namespace Radio.Nordic.NRF24L01P
             WriteRegister(rx_pw4);
             WriteRegister(rx_pw5);
             WriteRegister(feature);
+
             FlushTransmitFifo();
             FlushReceiveFifo();
         }
@@ -249,7 +252,7 @@ namespace Radio.Nordic.NRF24L01P
 
             WriteRegister(status);
         }
-        public void SetPipeState(Pipe Pipe, bool State)
+        public void SetPipeState(Pipe Pipe, bool Active)
         {
             var reg = ReadRegister<EN_RXADDR>();
 
@@ -257,32 +260,32 @@ namespace Radio.Nordic.NRF24L01P
             {
                 case Pipe_0:
                     {
-                        reg.ERX_P0 = State;
+                        reg.ERX_P0 = Active;
                         break;
                     }
                 case Pipe_1:
                     {
-                        reg.ERX_P1 = State;
+                        reg.ERX_P1 = Active;
                         break;
                     }
                 case Pipe_2:
                     {
-                        reg.ERX_P2 = State;
+                        reg.ERX_P2 = Active;
                         break;
                     }
                 case Pipe_3:
                     {
-                        reg.ERX_P3 = State;
+                        reg.ERX_P3 = Active;
                         break;
                     }
                 case Pipe_4:
                     {
-                        reg.ERX_P4 = State;
+                        reg.ERX_P4 = Active;
                         break;
                     }
                 case Pipe_5:
                     {
-                        reg.ERX_P5 = State;
+                        reg.ERX_P5 = Active;
                         break;
                     }
             }
@@ -337,11 +340,11 @@ namespace Radio.Nordic.NRF24L01P
             WriteRegister(reg);
         }
 
-        public void SetCRC(bool EnableCrc, bool CrcSize)
+        public void SetCRC(bool EnableCrc, CRC CrcSize)
         {
             var reg = ReadRegister<CONFIG>();
             reg.EN_CRC = EnableCrc;
-            reg.CRCO = CrcSize;
+            reg.CRCO = CrcSize == OneByte ? false : true;
             WriteRegister(reg);
         }
 
@@ -379,7 +382,7 @@ namespace Radio.Nordic.NRF24L01P
             WriteRegister(ftr);
         }
 
-        public void SetDynamicPipe(Pipe Pipe, bool State)
+        public void SetDynamicPayloadPipe(Pipe Pipe, bool State)
         {
             var dyn = ReadRegister<DYNPD>();
 
@@ -435,7 +438,6 @@ namespace Radio.Nordic.NRF24L01P
                         WriteRegister(reg);
                         break;
                     }
-
                 case Pipe_1:
                     {
                         RX_ADDR_P1 reg = new();
@@ -453,25 +455,21 @@ namespace Radio.Nordic.NRF24L01P
             WriteRegister(txaddr);
         }
 
-        public void SendPayload(byte[] Buffer, bool NoAck = false)
+        public void SendPayload(byte[] Buffer, bool Ack)
         {
-            SendPayload(Buffer, Buffer.Length, NoAck);
+            SendPayload(Buffer, Buffer.Length, Ack);
         }
-        public void SendPayload(byte[] Buffer, int Bytes, bool NoAck = false)
+        public void SendPayload(byte[] Buffer, int Bytes, bool Ack)
         {
             if (Bytes > Buffer.Length)
                 throw new ArgumentOutOfRangeException(nameof(Bytes));
 
             SetCSLow();
 
-            if (NoAck)
-            {
-                device.Write([COMMAND.W_TX_PAYLOAD_NO_ACK], 0, 1);
-            }
-            else
-            {
+            if (Ack)
                 device.Write([COMMAND.W_TX_PAYLOAD], 0, 1);
-            }
+            else
+                device.Write([COMMAND.W_TX_PAYLOAD_NO_ACK], 0, 1);
 
             device.Write(Buffer, 0, Bytes);
             SetCSHigh();

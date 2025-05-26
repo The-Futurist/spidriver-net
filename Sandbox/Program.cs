@@ -1,6 +1,7 @@
 ﻿using Radio.Nordic.NRF24L01P;
 using SpiDriver;
 using System.Text;
+using static Radio.Nordic.NRF24L01P.CRC;
 
 namespace Sandbox
 {
@@ -11,17 +12,14 @@ namespace Sandbox
     {
         private static Address nucleo_1_address = new(0x1951383138); // board's ID address
         private static Address nucleo_2_address = new(0x0F50334636); // board's ID address
-        private static byte[] payload = [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]; //, 0xe3, 0x41, 0x7f];
-        private static ulong counter = 0;
         private static string text = "I am a test messags of length 32";
+        private static Random rand = new Random(); // Create Random instance
 
         static void Main(string[] argv)
         {
             byte[] message = Encoding.UTF8.GetBytes(text);
 
-            Random rand = new Random(); // Create Random instance
-
-            int randsize = rand.Next(1, 33); // Generates a number from 1 to 32
+            STATUS sTATUS = new STATUS();
 
             try
             {
@@ -31,64 +29,35 @@ namespace Sandbox
 
                     nrf.ConnectUSB();
                     nrf.Reset();
-                    nrf.ConfigureRadio(Channel: 9, OutputPower.Low, DataRate.Med);
+                    nrf.ConfigureRadio(Channel: 9, OutputPower.Min, DataRate.Med);
                     nrf.ClearInterruptFlags(true, true, true);
                     nrf.SetPipeState(Pipe.Pipe_0, true);
                     nrf.SetPipeState(Pipe.Pipe_1, false);
 
                     nrf.SetAutoAck(Pipe.Pipe_0, true);
                     nrf.SetTransmitMode();
-                    nrf.SetCRC(true, true);
+                    nrf.SetCRC(true, TwoBytes);
                     nrf.SetAddressWidth(5);
                     nrf.SetAutoAckRetries(Interval: 1, MaxRetries: 10);
 
                     // Variable length payloads over pipe 0 (the boards listening address)
-                    nrf.SetDynamicPayload(true);
-                    nrf.SetDynamicPipe(Pipe.Pipe_0, true);
 
+                    nrf.SetDynamicPayload(true);
+                    nrf.SetDynamicPayloadPipe(Pipe.Pipe_0, true);
+                    nrf.SetDynamicAck(true);
                     nrf.PowerUp();
 
                     while (true)
                     {
-                        // Send short messsage to first board
+                        //Send random length messsage to first board
 
-                        nrf.SetReceiveAddressLong(nucleo_1_address, Pipe.Pipe_0);
-                        nrf.SetTransmitAddress(nucleo_1_address);
-
-                        randsize = rand.Next(1, 33);
-
-                        nrf.SendPayload(message, randsize);
-
-                        var status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
-
-                        if (status.MAX_RT)
-                        {
-                            nrf.FlushTransmitFifo();
-                            LogFailedAck(nrf, nucleo_1_address);
-                        }
-
-                        nrf.ClearInterruptFlags(true, true, true);
+                        SendMessage(nrf, nucleo_1_address, message);
 
                         Thread.Sleep(10);
 
-                        // Send short messsage to second board
+                        //Send random length messsage to second board
 
-                        nrf.SetReceiveAddressLong(nucleo_2_address, Pipe.Pipe_0);
-                        nrf.SetTransmitAddress(nucleo_2_address);
-
-                        randsize = rand.Next(1, 33);
-
-                        nrf.SendPayload(message, randsize);
-
-                        status = nrf.PollStatusUntil(s => s.MAX_RT == true | s.TX_DS == true);
-
-                        if (status.MAX_RT)
-                        {
-                            nrf.FlushTransmitFifo();
-                            LogFailedAck(nrf, nucleo_2_address);
-                        }
-
-                        nrf.ClearInterruptFlags(true, true, true);
+                        SendMessage(nrf, nucleo_2_address, message);
 
                         Thread.Sleep(10);
                     }
@@ -97,7 +66,6 @@ namespace Sandbox
                 {
                     Console.WriteLine("No NRF Device COM Port was found on this computer");
                 }
-
             }
             catch (Exception ex)
             {
@@ -110,10 +78,24 @@ namespace Sandbox
 
         }
 
-        private static string GetAddressText(ulong Address)
+        private static void SendMessage(NRF24L01P Nrf, Address Address, byte[] Message)
         {
-            string hexString = Address.ToString("X10");
-            return ($"{hexString[..2]}-{hexString[2..4]}-{hexString[4..6]}-{hexString[6..8]}-{hexString[8..10]}");
+            Nrf.SetReceiveAddressLong(Address, Pipe.Pipe_0);
+            Nrf.SetTransmitAddress(Address);
+
+            int randsize = rand.Next(1, 33);
+
+            Nrf.SendPayload(Message, randsize, true);
+
+            var status = Nrf.PollStatusUntil(s => s.MAX_RT | s.TX_DS);
+
+            if (status.MAX_RT)
+            {
+                Nrf.FlushTransmitFifo();
+                LogFailedAck(Nrf, Address);
+            }
+
+            Nrf.ClearInterruptFlags(true, true, true);
         }
 
         private static void LogFailedAck(NRF24L01P nrf, Address addr)
