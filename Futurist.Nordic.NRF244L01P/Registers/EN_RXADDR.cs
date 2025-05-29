@@ -1,34 +1,35 @@
 ﻿namespace Radio.Nordic.NRF24L01P
 {
-    public class EN_RXADDR : REGISTER_SHORT
+    public struct EN_RXADDR : IREGISTER
     {
-        public EN_RXADDR()
-        {
-            Id = 0x02;
-        }
+        private REGISTER bits;
+        public byte ADDR => 0x02;
+        public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public bool ERX_P0
         {
-            get => BIT0; set => BIT0 = value;
+            get => bits.BIT0; set => bits.BIT0 = value;
         }
         public bool ERX_P1
         {
-            get => BIT1; set => BIT1 = value;
+            get => bits.BIT1; set => bits.BIT1 = value;
         }
         public bool ERX_P2
         {
-            get => BIT2; set => BIT2 = value;
+            get => bits.BIT2; set => bits.BIT2 = value;
         }
         public bool ERX_P3
         {
-            get => BIT3; set => BIT3 = value;
+            get => bits.BIT3; set => bits.BIT3 = value;
         }
         public bool ERX_P4
         {
-            get => BIT4; set => BIT4 = value;
+            get => bits.BIT4; set => bits.BIT4 = value;
         }
         public bool ERX_P5
         {
-            get => BIT5; set => BIT5 = value;
+            get => bits.BIT5; set => bits.BIT5 = value;
         }
+
+        public int LENGTH => 1;
     }
 }

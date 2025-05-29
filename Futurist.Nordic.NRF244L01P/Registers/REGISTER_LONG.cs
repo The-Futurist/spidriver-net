@@ -1,11 +1,12 @@
 ﻿namespace Radio.Nordic.NRF24L01P
 {
-    public abstract class REGISTER_LONG : REGISTER
+    public struct REGISTER_LONG
     {
-        public REGISTER_LONG()
+        private ulong databits;
+        public ulong BYTES
         {
-            Register = new byte[5];
-            Length = 5;
+            get => databits;
+            set => databits = value;
         }
     }
 }

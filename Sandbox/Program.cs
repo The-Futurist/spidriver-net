@@ -12,7 +12,7 @@ namespace Sandbox
 
     class Program
     {
-        private static Address[] boards = { new(NUCLEO_1), new(NUCLEO_2), new(NUCLEO_3) };
+        private static Address[] boards = { new(NUCLEO_1), new(NUCLEO_3) };//, new(NUCLEO_3) };
         private static string text = "I am a test messags of length 32";
         private static Random rand = new Random(); // Create Random instance
 

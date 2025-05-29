@@ -1,14 +1,15 @@
 ﻿namespace Radio.Nordic.NRF24L01P
 {
-    public class RX_PW_P2 : REGISTER_SHORT
+    public struct RX_PW_P2 : IREGISTER
     {
-        public RX_PW_P2()
-        {
-            Id = 0x13;
-        }
+        private REGISTER bits;
+        public byte ADDR => 0x13;
+        public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public byte RX_PW
         {
-            get => Register[0]; set => Register[0] = value;
+            get => (byte)VALUE; set => VALUE = value;
         }
+
+        public int LENGTH => 1;
     }
 }

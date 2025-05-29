@@ -23,7 +23,7 @@
         }
 
         public byte[] Bytes => bytes;
-
+        public ulong ADDRESS { get { return address; } }
         public override string ToString()
         {
             return hexString;

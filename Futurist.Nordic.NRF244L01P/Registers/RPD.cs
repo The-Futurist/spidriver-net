@@ -1,11 +1,12 @@
 ﻿namespace Radio.Nordic.NRF24L01P
 {
-    public class RPD : REGISTER_SHORT
+    public struct RPD : IREGISTER
     {
-        public RPD()
-        {
-            Id = 0x09;
-        }
-        public bool CD_0 => BIT0;
+        private REGISTER bits;
+        public byte ADDR => 0x09;
+        public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
+        public bool CD_0 => bits.BIT0;
+
+        public int LENGTH => 1;
     }
 }

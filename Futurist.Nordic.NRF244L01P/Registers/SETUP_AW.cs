@@ -1,19 +1,20 @@
 ﻿namespace Radio.Nordic.NRF24L01P
 {
-    public class SETUP_AW : REGISTER_SHORT
+    public struct SETUP_AW : IREGISTER
     {
-        public SETUP_AW()
-        {
-            Id = 0x03;
-        }
+        private REGISTER bits;
+        public byte ADDR => 0x03;
+        public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public byte AW
         {
-            get => (byte)(Register[0] & 0x03);
+            get => (byte)(VALUE & 0x03);
             set
             {
-                Register[0] &= 0xFC;
-                Register[0] |= (byte)(value & 0x03);
+                VALUE &= 0xFC;
+                VALUE |= (byte)(value & 0x03);
             }
         }
+
+        public int LENGTH => 1;
     }
 }

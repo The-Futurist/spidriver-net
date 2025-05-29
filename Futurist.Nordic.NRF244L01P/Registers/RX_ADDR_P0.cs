@@ -1,15 +1,16 @@
 ﻿namespace Radio.Nordic.NRF24L01P
 {
-    public class RX_ADDR_P0 : REGISTER_LONG
+    public struct RX_ADDR_P0 : IREGISTER
     {
 
-        public RX_ADDR_P0()
+        private REGISTER_LONG bits;
+        public byte ADDR => 0x0A;
+        public ulong VALUE { get => bits.BYTES; set => bits.BYTES = value; }
+        public ulong ADDRESS
         {
-            Id = 0x0A;
+            get => bits.BYTES; set => bits.BYTES = value;
         }
-        public byte[] ADDR
-        {
-            get => Register; set => Register = value;
-        }
+
+        public int LENGTH => 5;
     }
 }
