@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Futurist.Nordic.NRF244L01P\Futurist.Nordic.NRF244L01P.csproj" />
+    <ProjectReference Include="..\Futurist.Nordic.NRF244L01P\Futurist.Nordic.NRF24L01P.csproj" />
   </ItemGroup>
 
 </Project>

@@ -333,10 +333,15 @@ namespace Radio.Nordic.NRF24L01P
             WriteRegister(reg);
         }
 
-        public void SetTransmitMode()
+        public void SetDirection(Direction Direction )
         {
             var reg = ReadRegister<CONFIG>();
-            reg.PRIM_RX = false;
+
+            if (Direction == Direction.Transmit)
+                reg.PRIM_RX = false;
+            else
+                reg.PRIM_RX = true;
+            
             WriteRegister(reg);
         }
 
