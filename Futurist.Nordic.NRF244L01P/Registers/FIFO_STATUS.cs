@@ -3,7 +3,7 @@
     public struct FIFO_STATUS : IREGISTER
     {
         private REGISTER bits;
-        public byte ADDR => 0x17;
+        public byte REGID => 0x17;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public bool TX_REUSE => bits.BIT6;
         public bool TX_FULL => bits.BIT5;

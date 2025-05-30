@@ -3,7 +3,7 @@
     public struct RF_SETUP : IREGISTER
     {
         private REGISTER bits;
-        public byte ADDR => 0x06;
+        public byte REGID => 0x06;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
 
         public bool CONT_WAVE

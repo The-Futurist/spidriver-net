@@ -4,7 +4,7 @@
     {
 
         private REGISTER_LONG bits;
-        public byte ADDR => 0x0B;
+        public byte REGID => 0x0B;
         public ulong VALUE { get => bits.BYTES; set => bits.BYTES = value; }
         public ulong ADDRESS
         {

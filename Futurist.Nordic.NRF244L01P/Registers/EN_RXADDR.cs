@@ -3,7 +3,7 @@
     public struct EN_RXADDR : IREGISTER
     {
         private REGISTER bits;
-        public byte ADDR => 0x02;
+        public byte REGID => 0x02;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public bool ERX_P0
         {

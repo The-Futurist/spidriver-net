@@ -3,7 +3,7 @@
     public struct SETUP_AW : IREGISTER
     {
         private REGISTER bits;
-        public byte ADDR => 0x03;
+        public byte REGID => 0x03;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public byte AW
         {

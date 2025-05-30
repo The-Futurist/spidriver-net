@@ -13,10 +13,10 @@
 
     public interface IREGISTER
     {
-        public byte ADDR { get; }
+        public byte REGID { get; }
         public ulong VALUE { get; set; }
-        public byte READ { get => (byte)(0x00 | ADDR); }
-        public byte WRITE { get => (byte)(0x02 | ADDR); }
+        public byte READ { get => (byte)(0x00 | REGID); }
+        public byte WRITE { get => (byte)(0x02 | REGID); }
         public int LENGTH { get; }
     }
 
@@ -35,37 +35,37 @@
         }
         public bool BIT1
         {
-            get => (databits & 0x02) != 0; // Check if bit 0 is set
+            get => (databits & 0x02) != 0; // Check if bit 1 is set
             set => databits = (byte)((databits & ~0x02) | (value ? 0x02 : 0x00));
         }
         public bool BIT2
         {
-            get => (databits & 0x04) != 0; // Check if bit 0 is set
+            get => (databits & 0x04) != 0; // Check if bit 2 is set
             set => databits = (byte)((databits & ~0x04) | (value ? 0x04 : 0x00));
         }
         public bool BIT3
         {
-            get => (databits & 0x08) != 0; // Check if bit 0 is set
+            get => (databits & 0x08) != 0; // Check if bit 3 is set
             set => databits = (byte)((databits & ~0x08) | (value ? 0x08 : 0x00));
         }
         public bool BIT4
         {
-            get => (databits & 0x10) != 0; // Check if bit 0 is set
+            get => (databits & 0x10) != 0; // Check if bit 4 is set
             set => databits = (byte)((databits & ~0x10) | (value ? 0x10 : 0x00));
         }
         public bool BIT5
         {
-            get => (databits & 0x20) != 0; // Check if bit 0 is set
+            get => (databits & 0x20) != 0; // Check if bit 5 is set
             set => databits = (byte)((databits & ~0x20) | (value ? 0x20 : 0x00));
         }
         public bool BIT6
         {
-            get => (databits & 0x40) != 0; // Check if bit 0 is set
+            get => (databits & 0x40) != 0; // Check if bit 6 is set
             set => databits = (byte)((databits & ~0x40) | (value ? 0x40 : 0x00));
         }
         public bool BIT7
         {
-            get => (databits & 0x80) != 0; // Check if bit 0 is set
+            get => (databits & 0x80) != 0; // Check if bit 7 is set
             set => databits = (byte)((databits & ~0x80) | (value ? 0x80 : 0x00));
         }
 

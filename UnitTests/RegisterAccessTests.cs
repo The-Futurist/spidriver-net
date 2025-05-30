@@ -8,6 +8,7 @@ namespace UnitTests
     public sealed class RegisterAccessTests
     {
         public static string PORT; // NRF24L01P.TryGetNrfComPort();
+        private static INRF24L01IO iodriver;
 
         static RegisterAccessTests()
         {
@@ -15,21 +16,24 @@ namespace UnitTests
             {
                 throw new InvalidOperationException("No atatched device was detectec.");
             }
+
+            iodriver = NRF24L01PFactory.CreateSPIDriverIO(PORT, Output.A);
+
         }
         [TestMethod]
         [DoNotParallelize]
         public void ConnectTest()
         {
-            using NRF24L01P nrf = new(PORT,Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
         }
         [TestMethod]
         [DoNotParallelize]
         public void CONFIG()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
+            using NRF24L01P nrf = new(iodriver);
 
-            nrf.ConnectUSB();
+            nrf.Connect();
 
             nrf.ReadRegister<CONFIG>(out var restore);
             nrf.ReadRegister<CONFIG>(out var changed);
@@ -70,8 +74,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void EN_AA()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<EN_AA>(out var restore);
             nrf.ReadRegister<EN_AA>(out var changed);
             changed.ENAA_P0 = !restore.ENAA_P0;
@@ -101,8 +105,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_ADDR_P0()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RX_ADDR_P0>(out var restore);
             nrf.ReadRegister<RX_ADDR_P0>(out var changed);
             changed.ADDRESS = restore.ADDRESS + 1;
@@ -117,8 +121,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_ADDR_P1()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RX_ADDR_P1>(out var restore);
             nrf.ReadRegister<RX_ADDR_P1>(out var changed);
             changed.ADDRESS = restore.ADDRESS + 1;
@@ -133,8 +137,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_ADDR_P2()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RX_ADDR_P2>(out var restore);
             nrf.ReadRegister<RX_ADDR_P2>(out var changed);
             changed.VALUE = (byte)(restore.VALUE + 1);
@@ -149,8 +153,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_ADDR_P3()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RX_ADDR_P3>(out var restore);
             nrf.ReadRegister<RX_ADDR_P3>(out var changed);
             changed.VALUE = (byte)(restore.VALUE + 1);
@@ -165,8 +169,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_ADDR_P4()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RX_ADDR_P4>(out var restore);
             nrf.ReadRegister<RX_ADDR_P4>(out var changed);
             changed.VALUE = (byte)(restore.VALUE + 1);
@@ -181,8 +185,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_ADDR_P5()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RX_ADDR_P5>(out var restore);
             nrf.ReadRegister<RX_ADDR_P5>(out var changed);
             changed.VALUE = (byte)(restore.VALUE + 1);
@@ -197,8 +201,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void TX_ADDR()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<TX_ADDR>(out var restore);
             nrf.ReadRegister<TX_ADDR>(out var changed);
             changed.ADDRESS = restore.ADDRESS + 1;
@@ -213,8 +217,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_PW_P0()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RX_PW_P0>(out var restore);
             nrf.ReadRegister<RX_PW_P0>(out var changed);
             changed.RX_PW = (byte)(restore.RX_PW + 1);
@@ -229,8 +233,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_PW_P1()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RX_PW_P1>(out var restore);
             nrf.ReadRegister<RX_PW_P1>(out var changed);
             changed.RX_PW = (byte)(restore.RX_PW + 1);
@@ -245,8 +249,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_PW_P2()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RX_PW_P2>(out var restore);
             nrf.ReadRegister<RX_PW_P2>(out var changed);
             changed.RX_PW = (byte)(restore.RX_PW + 1);
@@ -261,8 +265,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_PW_P3()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RX_PW_P3>(out var restore);
             nrf.ReadRegister<RX_PW_P3>(out var changed);
             changed.RX_PW = (byte)(restore.RX_PW + 1);
@@ -277,8 +281,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_PW_P4()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RX_PW_P4>(out var restore);
             nrf.ReadRegister<RX_PW_P4>(out var changed);
             changed.RX_PW = (byte)(restore.RX_PW + 1);
@@ -293,8 +297,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_PW_P5()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RX_PW_P5>(out var restore);
             nrf.ReadRegister<RX_PW_P5>(out var changed);
             changed.RX_PW = (byte)(restore.RX_PW + 1);
@@ -309,8 +313,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void DYNPD()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<DYNPD>(out var restore);
             nrf.ReadRegister<DYNPD>(out var changed);
             changed.DPL_P0 = !restore.DPL_P0;
@@ -340,8 +344,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void SETUP_AW()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<SETUP_AW>(out var restore);
             nrf.ReadRegister<SETUP_AW>(out var changed);
             changed.AW = (byte)(restore.AW + 1);
@@ -356,8 +360,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void SETUP_RETR()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<SETUP_RETR>(out var restore);
             nrf.ReadRegister<SETUP_RETR>(out var changed);
             changed.ARC = (byte)(restore.ARC + 1);
@@ -375,8 +379,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RF_CH()
         {
-            using NRF24L01P nrf = new(PORT    , Output.A  );
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RF_CH>(out var restore);
             nrf.ReadRegister<RF_CH>(out var changed);
             changed.CH = (byte)(restore.CH + 1);
@@ -391,8 +395,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void RF_SETUP()
         {
-            using NRF24L01P nrf = new(PORT, Output.A  );
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<RF_SETUP>(out var restore);
             nrf.ReadRegister<RF_SETUP>(out var changed);
             changed.CONT_WAVE = !restore.CONT_WAVE;
@@ -421,8 +425,8 @@ namespace UnitTests
         [DoNotParallelize]
         public void FEATURE()
         {
-            using NRF24L01P nrf = new(PORT, Output.A);
-            nrf.ConnectUSB();
+            using NRF24L01P nrf = new(iodriver);
+            nrf.Connect();
             nrf.ReadRegister<FEATURE>(out var restore);
             nrf.ReadRegister<FEATURE>(out var changed);
             changed.EN_DPL = !restore.EN_DPL;

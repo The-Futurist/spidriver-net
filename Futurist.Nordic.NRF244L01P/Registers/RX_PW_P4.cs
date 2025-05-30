@@ -3,7 +3,7 @@
     public struct RX_PW_P4 : IREGISTER
     {
         private REGISTER bits;
-        public byte ADDR => 0x15;
+        public byte REGID => 0x15;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public byte RX_PW
         {

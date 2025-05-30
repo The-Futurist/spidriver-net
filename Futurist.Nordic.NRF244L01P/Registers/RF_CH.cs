@@ -3,7 +3,7 @@
     public struct RF_CH : IREGISTER
     {
         private REGISTER bits;
-        public byte ADDR => 0x05;
+        public byte REGID => 0x05;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public byte CH
         {

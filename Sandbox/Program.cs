@@ -26,12 +26,13 @@ namespace Sandbox
             {
                 if (NRF24L01P.TryGetNrfComPort(out var port))
                 {
-                    using NRF24L01P radio = new(port, Output.A);
+                    var iodriver = NRF24L01PFactory.CreateSPIDriverIO(port, Output.A);
+
+                    using NRF24L01P radio = new(iodriver);
 
                     Console.WriteLine($"Using Port: {port}.");
 
-
-                    radio.ConnectUSB();
+                    radio.Connect();
                     radio.Reset();
                     radio.ConfigureRadio(Channel: 9, OutputPower.Min, DataRate.Med);
                     radio.ClearInterruptFlags(true, true, true);

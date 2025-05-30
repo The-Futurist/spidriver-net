@@ -3,7 +3,7 @@
     public struct DYNPD : IREGISTER
     {
         private REGISTER bits;
-        public byte ADDR => 0x1C;
+        public byte REGID => 0x1C;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public bool DPL_P0
         {

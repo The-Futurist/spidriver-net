@@ -28,7 +28,7 @@
     public struct STATUS : IREGISTER
     {
         private REGISTER bits;
-        public byte ADDR => 0x07;
+        public byte REGID => 0x07;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         #region BIT Fields
         public bool RX_DR

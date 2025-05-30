@@ -1,5 +1,4 @@
-﻿using SpiDriver;
-using System.Management;
+﻿using System.Management;
 using static Radio.Nordic.NRF24L01P.Pipe;
 using static Radio.Nordic.NRF24L01P.DataRate;
 using static Radio.Nordic.NRF24L01P.CRC;
@@ -8,21 +7,19 @@ using static Radio.Nordic.NRF24L01P.CRC;
 
 namespace Radio.Nordic.NRF24L01P
 {
-    public class NRF24L01P(string comport, Output CEPin) : IDisposable
+
+    public class NRF24L01P (INRF24L01IO IODriver) : IDisposable
     {
-        private readonly Device device = new(comport);
         private bool disposedValue;
         private int channel = 0;
         private int frequency = 2400;
         private int retries = 3;
         private int interval;
-        private readonly Output ce_pin = CEPin;
+        private INRF24L01IO driver = IODriver;
 
-        public void ConnectUSB()
+        public void Connect()
         {
-            device.Connect();
-            CS = Pin.High;
-            CE = Pin.Low;
+            driver.Connect();
         }
         public static bool TryGetNrfComPort(out string Port)
         {
@@ -44,58 +41,22 @@ namespace Radio.Nordic.NRF24L01P
         }
         public void ReadRegister<T>(out T register) where T : struct, IREGISTER
         {
-            register = default;
-            byte[] reg = new byte[5];
-            SetCSLow();
-            device.Write([COMMAND.R_REGISTER.OR(register.ADDR)], 0, 1);
-            device.Read(reg, 0, register.LENGTH);
-            SetCSHigh();
-
-            if (register.LENGTH == 1)
-            {
-                register.VALUE = reg[0];
-            }
-            else
-            {
-                ulong value = 0;
-                value |= (ulong)reg[4];
-                value |= (ulong)reg[3] << 8;
-                value |= (ulong)reg[2] << 16;
-                value |= (ulong)reg[1] << 24;
-                value |= (ulong)reg[0] << 32;
-                register.VALUE = value;
-            }
+            driver.ReadRegister(out register);
         }
         public void WriteRegister<T>(ref T register) where T : struct, IREGISTER
         {
-            byte[] reg = new byte[5];
-
-            SetCSLow();
-            device.Write([COMMAND.W_REGISTER.OR(register.ADDR)], 0, 1);
-
-            if (register.LENGTH == 1)
-            {
-                reg[0] = (byte)register.VALUE;
-            }
-            else
-            {
-                reg[4] = (byte)(register.VALUE >> 0);
-                reg[3] = (byte)(register.VALUE >> 8);
-                reg[2] = (byte)(register.VALUE >> 16);
-                reg[1] = (byte)(register.VALUE >> 24);
-                reg[0] = (byte)(register.VALUE >> 32);
-            }
-
-           device.Write(reg, 0, register.LENGTH);
-           SetCSHigh();
+            driver.WriteRegister(ref register);
         }
+        /// <summary>
+        /// The CS pin on the SPIDriver when set to true means "select" or "activate" and actually makes the pin low.
+        /// </summary>
         public Pin CS
         {
-            set => device.SetOutput(Output.CS, value == Pin.Low);
+            set => driver.CS = value;
         }
         public Pin CE
         {
-            set => device.SetOutput(ce_pin, value != Pin.Low);
+            set => driver.CE = value;
         }
         public int Channel { get => channel; }
         public int Interval { get => interval; }
@@ -103,19 +64,19 @@ namespace Radio.Nordic.NRF24L01P
         public int Frequency { get => frequency; }
         public void SetCSLow()
         {
-            device.SetOutput(Output.CS, true);
+            CS = Pin.Low; //device.SetOutput(Output.CS, true);
         }
         public void SetCSHigh()
         {
-            device.SetOutput(Output.CS, false);
+            CS = Pin.High; //device.SetOutput(Output.CS, false);
         }
         public void SetCELow()
         {
-            device.SetOutput(ce_pin, false);
+            CE = Pin.Low; // device.SetOutput(ce_pin, false);
         }
         public void SetCEHigh()
         {
-            device.SetOutput(ce_pin, true);
+            CE = Pin.High; // device.SetOutput(ce_pin, true);
         }
 
         public void Reset()
@@ -492,11 +453,10 @@ namespace Radio.Nordic.NRF24L01P
             SetCSLow();
 
             if (Ack)
-                device.Write([COMMAND.W_TX_PAYLOAD], 0, 1);
+                IODriver.SendCommand(COMMAND.W_TX_PAYLOAD, Buffer);
             else
-                device.Write([COMMAND.W_TX_PAYLOAD_NO_ACK], 0, 1);
+                IODriver.SendCommand(COMMAND.W_TX_PAYLOAD_NO_ACK, Buffer);
 
-            device.Write(Buffer, 0, Bytes);
             SetCSHigh();
 
             // We must pulse the CE pin for > 10 uS, this code strives to spin for about 20 uS
@@ -509,15 +469,11 @@ namespace Radio.Nordic.NRF24L01P
         }
         public void FlushTransmitFifo()
         {
-            SetCSLow();
-            device.Write([COMMAND.FLUSH_TX], 0, 1);
-            SetCSHigh();
+            IODriver.SendCommand(COMMAND.FLUSH_TX);
         }
         public void FlushReceiveFifo()
         {
-            SetCSLow();
-            device.Write([COMMAND.FLUSH_RX], 0, 1);
-            SetCSHigh();
+            IODriver.SendCommand(COMMAND.FLUSH_RX);
         }
 
         public STATUS PollStatusUntil(Func<STATUS, bool> func)
@@ -542,7 +498,7 @@ namespace Radio.Nordic.NRF24L01P
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
-                device.Close();
+                IODriver.Close();
                 //device.Dispose();
                 disposedValue = true;
             }

@@ -3,7 +3,7 @@
     public struct EN_AA : IREGISTER  
     {
         private REGISTER bits;
-        public byte ADDR => 0x01;
+        public byte REGID => 0x01;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public bool ENAA_P0
         { get => bits.BIT0; set => bits.BIT0 = value;

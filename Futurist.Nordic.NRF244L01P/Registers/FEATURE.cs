@@ -3,7 +3,7 @@
     public struct FEATURE : IREGISTER
     {
         private REGISTER bits;
-        public byte ADDR => 0x1D;
+        public byte REGID => 0x1D;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public bool EN_DYN_ACK
         {

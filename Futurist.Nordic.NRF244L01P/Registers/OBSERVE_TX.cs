@@ -3,7 +3,7 @@
     public struct OBSERVE_TX : IREGISTER
     {
         private REGISTER bits;
-        public byte ADDR => 0x08;
+        public byte REGID => 0x08;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public byte PLOS_CNT => (byte)((VALUE & 0xF0) >> 4);
         public byte ARC_CNT => (byte)(VALUE & 0x0F);

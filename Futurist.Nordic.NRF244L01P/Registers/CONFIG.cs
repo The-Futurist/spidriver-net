@@ -3,7 +3,7 @@
     public struct CONFIG : IREGISTER
     {
         private REGISTER bits;
-        public byte ADDR => 0x00;
+        public byte REGID => 0x00;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public bool RESERVED => bits.BIT7;
         public bool MASK_RX_DR
