@@ -7,7 +7,7 @@ namespace UnitTests
     [TestClass]
     public sealed class RegisterAccessTests
     {
-        public static string PORT; // NRF24L01P.TryGetNrfComPort();
+        public static string PORT = String.Empty; // NRF24L01P.TryGetNrfComPort();
 
         static RegisterAccessTests()
         {
@@ -21,8 +21,8 @@ namespace UnitTests
         }
         public NRF24L01P CreateDevice()
         {
-            var iodriver = DriverFactory.CreateFT232H("D3", "D4"); //DriverFactory.CreateSPIDriver(PORT, Output.A);
-            return new NRF24L01P(iodriver);
+            var settings = new FT232HSettings() { CSPin = "D3", CEPin = "D4", ClockSpeed = 10_000_000 };
+            return NRF24L01P.Create(settings);
         }
         [TestMethod]
         [DoNotParallelize]

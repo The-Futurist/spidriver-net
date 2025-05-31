@@ -8,22 +8,32 @@ using static Radio.Nordic.NRF24L01P.CRC;
 namespace Radio.Nordic.NRF24L01P
 {
 
-    public class NRF24L01P (IRadioDriver IODriver) : IDisposable
+    public class NRF24L01P : IDisposable
     {
         private bool disposedValue;
         private int channel = 0;
         private int frequency = 2400;
         private int retries = 3;
         private int interval;
-        private IRadioDriver driver = IODriver;
+        private IRadioDriver driver;
 
+        public static NRF24L01P Create(DriverSettings Settings)
+        {
+            var driver = DriverFactory.CreateDriver(Settings);
+            return new NRF24L01P (driver);
+        }
+
+        private NRF24L01P(IRadioDriver IODriver)
+        {
+            driver = IODriver;
+        }
         public void Connect()
         {
             driver.Connect();
         }
         public static bool TryGetNrfComPort(out string Port)
         {
-            Port = null;
+            Port = String.Empty;
 
             using var searcher = new ManagementObjectSearcher("SELECT Manufacturer, Name FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'").Get();
 
@@ -453,9 +463,9 @@ namespace Radio.Nordic.NRF24L01P
             SetCSLow();
 
             if (Ack)
-                IODriver.SendCommand(COMMAND.W_TX_PAYLOAD, Buffer);
+                driver.SendCommand(COMMAND.W_TX_PAYLOAD, Buffer);
             else
-                IODriver.SendCommand(COMMAND.W_TX_PAYLOAD_NO_ACK, Buffer);
+                driver.SendCommand(COMMAND.W_TX_PAYLOAD_NO_ACK, Buffer);
 
             SetCSHigh();
 
@@ -469,11 +479,11 @@ namespace Radio.Nordic.NRF24L01P
         }
         public void FlushTransmitFifo()
         {
-            IODriver.SendCommand(COMMAND.FLUSH_TX);
+            driver.SendCommand(COMMAND.FLUSH_TX);
         }
         public void FlushReceiveFifo()
         {
-            IODriver.SendCommand(COMMAND.FLUSH_RX);
+            driver.SendCommand(COMMAND.FLUSH_RX);
         }
 
         public STATUS PollStatusUntil(Func<STATUS, bool> func)
@@ -498,7 +508,7 @@ namespace Radio.Nordic.NRF24L01P
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
-                IODriver.Close();
+                driver.Close();
                 //device.Dispose();
                 disposedValue = true;
             }

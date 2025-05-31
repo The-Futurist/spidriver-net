@@ -5,12 +5,13 @@ namespace Radio.Nordic.NRF24L01P
     public interface IRadioDriver
     {
         void Connect();
-        void Close();
-        Pin CS { set; }
-        Pin CE { set; }
         void ReadRegister<T>(out T register) where T : struct, IREGISTER;
         void WriteRegister<T>(ref T register) where T : struct, IREGISTER;
         void SendCommand(byte Command);
         void SendCommand(byte Command, byte[] Buffer);
+        void SendCommand(byte Command, Span<byte> Buffer);
+        void Close();
+        Pin CS { set; }
+        Pin CE { set; }
     }
 }

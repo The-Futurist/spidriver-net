@@ -11,11 +11,11 @@ namespace Radio.Nordic.NRF24L01P.Drivers
     /// <remarks>
     /// This driver supports the Excamera Labs board 'SPIDriver'.
     /// </remarks>
-    /// <param name="comport"></param>
+    /// <param name="ComPort"></param>
     /// <param name="CEPin"></param>
-    public class FT230XQDriver(string comport, Output CEPin) : IRadioDriver
+    public class FT230XQDriver(string ComPort, Output CEPin) : IRadioDriver
     {
-        private readonly Device device = new(comport);
+        private readonly Device device = new(ComPort);
         private readonly Output ce_pin = CEPin;
         public Pin CS { set => device.SetOutput(Output.CS, value == Pin.Low ? true : false); }
         public Pin CE { set => device.SetOutput(ce_pin, value == Pin.High ? true : false); }
@@ -58,6 +58,10 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             CS = Pin.Low;
             device.Write([Command], 0, 1);
             CS = Pin.High;
+        }
+        public void SendCommand(byte Command, Span<byte> Buffer)
+        {
+            SendCommand(Command, Buffer.ToArray());
         }
         public void SendCommand(byte Command, byte[] Buffer)
         {

@@ -13,7 +13,7 @@ namespace Sandbox
         private static Address[] boards = { new(NUCLEO_1), new(NUCLEO_3) };//, new(NUCLEO_3) };
         private static string text = "I am a test messags of length 32";
         private static Random rand = new Random(); // Create Random instance
-
+        private static int msgCount = 0;
         static void Main(string[] argv)
         {
             byte[] message = { 0xAB, 0xCD };
@@ -24,11 +24,9 @@ namespace Sandbox
                 {
                     //Console.WriteLine($"Using Port: {port}.");
 
-                    var iodriver = DriverFactory.CreateFT232H("D3","D4"); //DriverFactory.CreateSPIDriver(port, Output.A);
+                    var settings = new FT232HSettings() { CSPin = "D3", CEPin = "D4", ClockSpeed = 10_000_000 };
 
-                    using NRF24L01P radio = new(iodriver);
-
-                    radio.ReadRegister<RX_ADDR_P0>(out var reggie);
+                    using NRF24L01P radio = NRF24L01P.Create(settings);
 
                     radio.Connect();
                     radio.Reset();
@@ -91,14 +89,31 @@ namespace Sandbox
                 Radio.FlushTransmitFifo();
                 LogFailedAck(Radio, Address);
             }
+            else
+            {
+                msgCount++;
+            }
+
+            if (msgCount > 999)
+            {
+                LogSuccess(msgCount);
+                msgCount = 0;
+            }
 
             Radio.ClearInterruptFlags(true, true, true);
         }
 
+        private static void LogSuccess(int Num)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write($"{DateTime.Now} ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine($"{Num} messages sent and acknowledged.");
+        }
         private static void LogFailedAck(NRF24L01P nrf, Address addr)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write(DateTime.Now);
+            Console.Write($"{DateTime.Now} ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine($" No auto-ack received from STN: {addr} CHAN: {nrf.Channel} FREQ: {2400 + nrf.Channel} RET: {nrf.Retries} INT: {nrf.Interval} TOT: {(nrf.Retries + 1) * nrf.Interval}");
         }

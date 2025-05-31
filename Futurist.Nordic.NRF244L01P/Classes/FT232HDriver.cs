@@ -4,6 +4,7 @@ using Iot.Device.FtCommon;
 using System.Collections;
 using System.Device.Gpio;
 using System.Device.Spi;
+using System.Runtime.CompilerServices;
 using UnitsNet;
 
 namespace Radio.Nordic.NRF24L01P.Drivers
@@ -14,14 +15,14 @@ namespace Radio.Nordic.NRF24L01P.Drivers
     /// <remarks>
     /// This driver supports the Adafruit FT232H Breakout board. 
     /// </remarks>
-    /// <param name="comport"></param>
-    /// <param name="CEPin"></param>
     public class FT232HDriver: IRadioDriver, IDisposable
     {
-        private SpiDevice device;
-        private GpioController gpioController;
-        private Ft232HDevice ft_device;
+        private SpiDevice? device;
+        private GpioController? gpioController;
+        private Ft232HDevice? ft_device;
+        private SpiConnectionSettings settings;
         private int ce_pin;
+        private int cs_pin;
         private bool disposedValue;
 
         public Pin CS { set { } }  // the IoT SPI stuff uses CSN implicitly, automatically.
@@ -30,17 +31,20 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             set => gpioController.Write(ce_pin, value == Pin.High ? PinValue.High : PinValue.Low);
         }
 
-        public FT232HDriver(string CSPin, string CEPin)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="CSPin"></param>
+        /// <param name="CEPin"></param>
+        public FT232HDriver(string CSPin, string CEPin, int ClockSpeed)
         {
-            var devices = FtCommon.GetDevices();
-            ft_device = new Ft232HDevice(devices[0]);
-            var cs_pin = Ft232HDevice.GetPinNumberFromString("D3");
-            var settings = new SpiConnectionSettings(0, cs_pin) { ClockFrequency = 10_000_000, DataBitLength = 8, ChipSelectLineActiveState = PinValue.Low };
-            gpioController = ft_device.CreateGpioController();
+            device = null;
+            gpioController = null;
 
-            ce_pin = Ft232HDevice.GetPinNumberFromString("D4");
-            gpioController.OpenPin(ce_pin, PinMode.Output);
-            device = ft_device.CreateSpiDevice(settings);
+            cs_pin = Ft232HDevice.GetPinNumberFromString(CSPin);
+            ce_pin = Ft232HDevice.GetPinNumberFromString(CEPin);
+            settings = new SpiConnectionSettings(0, cs_pin) { ClockFrequency = ClockSpeed, DataBitLength = 8, ChipSelectLineActiveState = PinValue.Low };
+
         }
 
         public void Close()
@@ -50,6 +54,11 @@ namespace Radio.Nordic.NRF24L01P.Drivers
 
         public void Connect()
         {
+            var devices = FtCommon.GetDevices();
+            ft_device = new Ft232HDevice(devices[0]);
+            gpioController = ft_device.CreateGpioController();
+            gpioController.OpenPin(ce_pin, PinMode.Output);
+            device = ft_device.CreateSpiDevice(settings);
         }
 
         public void ReadRegister<T>(out T Register) where T : struct, IREGISTER
@@ -85,13 +94,19 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             device.TransferFullDuplex(command, response);
         }
 
-        public void SendCommand(byte Command, byte[] Buffer)
+        public void SendCommand(byte Command, Span<byte> Buffer)
         {
             Span<byte> command = stackalloc byte[Buffer.Length + 1]; // Allocate space for 6 bytes
             Span<byte> response = stackalloc byte[Buffer.Length + 1];
             command[0] = Command; // Set the first byte
             Buffer.CopyTo(command.Slice(1)); // Copy the rest
             device.TransferFullDuplex(command, response);
+        }
+
+
+        public void SendCommand(byte Command, byte[] Buffer)
+        {
+            SendCommand(Command, Buffer.AsSpan());
         }
 
         public void WriteRegister<T>(ref T Register) where T : struct, IREGISTER
