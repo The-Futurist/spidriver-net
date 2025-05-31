@@ -1,11 +1,8 @@
 ﻿// SEE: https://cdn.sparkfun.com/assets/3/d/8/5/1/nRF24L01P_Product_Specification_1_0.pdf
 using Iot.Device.Ft232H;
 using Iot.Device.FtCommon;
-using System.Collections;
 using System.Device.Gpio;
 using System.Device.Spi;
-using System.Runtime.CompilerServices;
-using UnitsNet;
 
 namespace Radio.Nordic.NRF24L01P.Drivers
 {
@@ -61,7 +58,7 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             device = ft_device.CreateSpiDevice(settings);
         }
 
-        public void ReadRegister<T>(out T Register) where T : struct, IREGISTER
+        public void ReadRegister<T>(out T Register) where T : struct, IRegister
         {
             Register = default;
 
@@ -109,7 +106,7 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             SendCommand(Command, Buffer.AsSpan());
         }
 
-        public void WriteRegister<T>(ref T Register) where T : struct, IREGISTER
+        public void WriteRegister<T>(ref T Register) where T : struct, IRegister
         {
 
             if (Register.LENGTH == 1)

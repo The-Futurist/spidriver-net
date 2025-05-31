@@ -1,5 +1,4 @@
 ﻿using Radio.Nordic.NRF24L01P;
-using SpiDriver;
 using static Radio.Nordic.NRF24L01P.Literals;
 
 namespace UnitTests

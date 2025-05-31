@@ -25,7 +25,7 @@
     //    public bool TX_FULL => BIT0;
     //}
 
-    public struct STATUS : IREGISTER
+    public struct STATUS : IRegister
     {
         private REGISTER bits;
         public byte REGID => 0x07;

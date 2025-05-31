@@ -1,5 +1,4 @@
-﻿using System.Management;
-using static Radio.Nordic.NRF24L01P.Pipe;
+﻿using static Radio.Nordic.NRF24L01P.Pipe;
 using static Radio.Nordic.NRF24L01P.DataRate;
 using static Radio.Nordic.NRF24L01P.CRC;
 
@@ -31,29 +30,11 @@ namespace Radio.Nordic.NRF24L01P
         {
             driver.Connect();
         }
-        public static bool TryGetNrfComPort(out string Port)
-        {
-            Port = String.Empty;
-
-            using var searcher = new ManagementObjectSearcher("SELECT Manufacturer, Name FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'").Get();
-
-            foreach (var obj in searcher)
-            {
-                if (obj["Manufacturer"].ToString() == "FTDI")
-                {
-                    var s = obj["Name"].ToString().Split(['(', ')'], 10);
-                    Port = s[1];
-                    return true;
-                }
-            }
-
-            return false;
-        }
-        public void ReadRegister<T>(out T register) where T : struct, IREGISTER
+        public void ReadRegister<T>(out T register) where T : struct, IRegister
         {
             driver.ReadRegister(out register);
         }
-        public void WriteRegister<T>(ref T register) where T : struct, IREGISTER
+        public void WriteRegister<T>(ref T register) where T : struct, IRegister
         {
             driver.WriteRegister(ref register);
         }
@@ -380,37 +361,37 @@ namespace Radio.Nordic.NRF24L01P
 
         public void SetDynamicPayloadPipe(Pipe Pipe, bool State)
         {
-            ReadRegister<DYNPD>(out var dyn);
+            ReadRegister<DYNPD>(out var dynpd);
 
             switch (Pipe)
             {
                 case Pipe_0:
-                    dyn.DPL_P0 = State;
+                    dynpd.DPL_P0 = State;
                     break;
                 case Pipe_1:
-                    dyn.DPL_P1 = State;
+                    dynpd.DPL_P1 = State;
                     break;
                 case Pipe_2:
-                    dyn.DPL_P2 = State;
+                    dynpd.DPL_P2 = State;
                     break;
                 case Pipe_3:
-                    dyn.DPL_P3 = State;
+                    dynpd.DPL_P3 = State;
                     break;
                 case Pipe_4:
-                    dyn.DPL_P4 = State;
+                    dynpd.DPL_P4 = State;
                     break;
                 case Pipe_5:
-                    dyn.DPL_P5 = State;
+                    dynpd.DPL_P5 = State;
                     break;
             }
 
-            WriteRegister(ref dyn);
+            WriteRegister(ref dynpd);
         }
         public void SetDynamicAck(bool State)
         {
-            ReadRegister<FEATURE>(out var ftr);
-            ftr.EN_DYN_ACK = State;
-            WriteRegister(ref ftr);
+            ReadRegister<FEATURE>(out var feature);
+            feature.EN_DYN_ACK = State;
+            WriteRegister(ref feature);
         }
         public void PowerUp()
         {

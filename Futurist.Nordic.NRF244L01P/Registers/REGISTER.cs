@@ -11,7 +11,7 @@
     //    public int Length { get => length; protected set => length = value; }
     //}
 
-    public interface IREGISTER
+    public interface IRegister
     {
         public byte REGID { get; }
         public ulong VALUE { get; set; }

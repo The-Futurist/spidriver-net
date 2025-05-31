@@ -1,6 +1,6 @@
 ﻿namespace Radio.Nordic.NRF24L01P
 {
-    public struct RF_SETUP : IREGISTER
+    public struct RF_SETUP : IRegister
     {
         private REGISTER bits;
         public byte REGID => 0x06;

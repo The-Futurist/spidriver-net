@@ -1,4 +1,5 @@
 ﻿using SpiDriver;
+using System.Management;
 
 // SEE: https://cdn.sparkfun.com/assets/3/d/8/5/1/nRF24L01P_Product_Specification_1_0.pdf
 
@@ -19,6 +20,24 @@ namespace Radio.Nordic.NRF24L01P.Drivers
         private readonly Output ce_pin = CEPin;
         public Pin CS { set => device.SetOutput(Output.CS, value == Pin.Low ? true : false); }
         public Pin CE { set => device.SetOutput(ce_pin, value == Pin.High ? true : false); }
+        public static bool TryGetNrfComPort(out string Port)
+        {
+            Port = String.Empty;
+
+            using var searcher = new ManagementObjectSearcher("SELECT Manufacturer, Name FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'").Get();
+
+            foreach (var obj in searcher)
+            {
+                if (obj["Manufacturer"].ToString() == "FTDI")
+                {
+                    var s = obj["Name"].ToString().Split(['(', ')'], 10);
+                    Port = s[1];
+                    return true;
+                }
+            }
+
+            return false;
+        }
         public void Close()
         {
             device.Close();
@@ -29,7 +48,7 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             CS = Pin.High;
             CE = Pin.Low;
         }
-        public void ReadRegister<T>(out T register) where T : struct, IREGISTER
+        public void ReadRegister<T>(out T register) where T : struct, IRegister
         {
             register = default;
             byte[] reg = new byte[register.LENGTH];
@@ -72,7 +91,7 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             device.Write(buffer, 0, buffer.Length);
             CS = Pin.High;
         }
-        public void WriteRegister<T>(ref T register) where T : struct, IREGISTER
+        public void WriteRegister<T>(ref T register) where T : struct, IRegister
         {
             byte[] reg = new byte[register.LENGTH];
 

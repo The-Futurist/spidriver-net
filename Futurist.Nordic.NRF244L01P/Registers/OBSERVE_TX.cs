@@ -1,6 +1,6 @@
 ﻿namespace Radio.Nordic.NRF24L01P
 {
-    public struct OBSERVE_TX : IREGISTER
+    public struct OBSERVE_TX : IRegister
     {
         private REGISTER bits;
         public byte REGID => 0x08;

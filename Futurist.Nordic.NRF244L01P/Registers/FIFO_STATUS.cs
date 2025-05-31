@@ -1,6 +1,6 @@
 ﻿namespace Radio.Nordic.NRF24L01P
 {
-    public struct FIFO_STATUS : IREGISTER
+    public struct FIFO_STATUS : IRegister
     {
         private REGISTER bits;
         public byte REGID => 0x17;
