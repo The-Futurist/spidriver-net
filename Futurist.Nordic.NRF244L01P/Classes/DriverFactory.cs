@@ -13,9 +13,9 @@ namespace Radio.Nordic.NRF24L01P
             return driver;
         }
 
-        public static IRadioDriver CreateFT232H()
+        public static IRadioDriver CreateFT232H(string CSPin, string CEPin)
         {
-            var driver = new FT232HDriver();
+            var driver = new FT232HDriver(CSPin, CEPin);
             return driver;
         }
     }

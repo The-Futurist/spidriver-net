@@ -24,7 +24,7 @@ namespace Sandbox
                 {
                     //Console.WriteLine($"Using Port: {port}.");
 
-                    var iodriver = DriverFactory.CreateFT232H(); //DriverFactory.CreateSPIDriver(port, Output.A);
+                    var iodriver = DriverFactory.CreateFT232H("D3","D4"); //DriverFactory.CreateSPIDriver(port, Output.A);
 
                     using NRF24L01P radio = new(iodriver);
 

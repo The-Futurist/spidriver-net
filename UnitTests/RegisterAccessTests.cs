@@ -8,7 +8,6 @@ namespace UnitTests
     public sealed class RegisterAccessTests
     {
         public static string PORT; // NRF24L01P.TryGetNrfComPort();
-        private static IRadioDriver iodriver;
 
         static RegisterAccessTests()
         {
@@ -17,21 +16,26 @@ namespace UnitTests
             //    throw new InvalidOperationException("No atatched device was detectec.");
             //}
 
-            iodriver = DriverFactory.CreateFT232H(); //DriverFactory.CreateSPIDriver(PORT, Output.A);
+            //iodriver = DriverFactory.CreateFT232H("D3","D4"); //DriverFactory.CreateSPIDriver(PORT, Output.A);
 
+        }
+        public NRF24L01P CreateDevice()
+        {
+            var iodriver = DriverFactory.CreateFT232H("D3", "D4"); //DriverFactory.CreateSPIDriver(PORT, Output.A);
+            return new NRF24L01P(iodriver);
         }
         [TestMethod]
         [DoNotParallelize]
         public void ConnectTest()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
         }
         [TestMethod]
         [DoNotParallelize]
         public void CONFIG()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
 
             nrf.Connect();
 
@@ -74,7 +78,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void EN_AA()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<EN_AA>(out var restore);
             nrf.ReadRegister<EN_AA>(out var changed);
@@ -105,7 +109,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_ADDR_P0()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RX_ADDR_P0>(out var restore);
             nrf.ReadRegister<RX_ADDR_P0>(out var changed);
@@ -121,7 +125,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_ADDR_P1()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RX_ADDR_P1>(out var restore);
             nrf.ReadRegister<RX_ADDR_P1>(out var changed);
@@ -137,7 +141,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_ADDR_P2()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RX_ADDR_P2>(out var restore);
             nrf.ReadRegister<RX_ADDR_P2>(out var changed);
@@ -153,7 +157,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_ADDR_P3()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RX_ADDR_P3>(out var restore);
             nrf.ReadRegister<RX_ADDR_P3>(out var changed);
@@ -169,7 +173,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_ADDR_P4()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RX_ADDR_P4>(out var restore);
             nrf.ReadRegister<RX_ADDR_P4>(out var changed);
@@ -185,7 +189,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_ADDR_P5()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RX_ADDR_P5>(out var restore);
             nrf.ReadRegister<RX_ADDR_P5>(out var changed);
@@ -201,7 +205,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void TX_ADDR()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<TX_ADDR>(out var restore);
             nrf.ReadRegister<TX_ADDR>(out var changed);
@@ -217,7 +221,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_PW_P0()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RX_PW_P0>(out var restore);
             nrf.ReadRegister<RX_PW_P0>(out var changed);
@@ -233,7 +237,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_PW_P1()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RX_PW_P1>(out var restore);
             nrf.ReadRegister<RX_PW_P1>(out var changed);
@@ -249,7 +253,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_PW_P2()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RX_PW_P2>(out var restore);
             nrf.ReadRegister<RX_PW_P2>(out var changed);
@@ -265,7 +269,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_PW_P3()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RX_PW_P3>(out var restore);
             nrf.ReadRegister<RX_PW_P3>(out var changed);
@@ -281,7 +285,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_PW_P4()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RX_PW_P4>(out var restore);
             nrf.ReadRegister<RX_PW_P4>(out var changed);
@@ -297,7 +301,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RX_PW_P5()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RX_PW_P5>(out var restore);
             nrf.ReadRegister<RX_PW_P5>(out var changed);
@@ -313,7 +317,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void DYNPD()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<DYNPD>(out var restore);
             nrf.ReadRegister<DYNPD>(out var changed);
@@ -344,7 +348,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void SETUP_AW()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<SETUP_AW>(out var restore);
             nrf.ReadRegister<SETUP_AW>(out var changed);
@@ -360,7 +364,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void SETUP_RETR()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<SETUP_RETR>(out var restore);
             nrf.ReadRegister<SETUP_RETR>(out var changed);
@@ -379,7 +383,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RF_CH()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RF_CH>(out var restore);
             nrf.ReadRegister<RF_CH>(out var changed);
@@ -395,7 +399,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void RF_SETUP()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<RF_SETUP>(out var restore);
             nrf.ReadRegister<RF_SETUP>(out var changed);
@@ -425,7 +429,7 @@ namespace UnitTests
         [DoNotParallelize]
         public void FEATURE()
         {
-            using NRF24L01P nrf = new(iodriver);
+            using NRF24L01P nrf = CreateDevice();
             nrf.Connect();
             nrf.ReadRegister<FEATURE>(out var restore);
             nrf.ReadRegister<FEATURE>(out var changed);

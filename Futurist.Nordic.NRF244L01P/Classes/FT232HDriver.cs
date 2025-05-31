@@ -16,32 +16,36 @@ namespace Radio.Nordic.NRF24L01P.Drivers
     /// </remarks>
     /// <param name="comport"></param>
     /// <param name="CEPin"></param>
-    public class FT232HDriver: IRadioDriver
+    public class FT232HDriver: IRadioDriver, IDisposable
     {
         private SpiDevice device;
         private GpioController gpioController;
+        private Ft232HDevice ft_device;
         private int ce_pin;
+        private bool disposedValue;
+
         public Pin CS { set { } }  // the IoT SPI stuff uses CSN implicitly, automatically.
         public Pin CE 
         {
             set => gpioController.Write(ce_pin, value == Pin.High ? PinValue.High : PinValue.Low);
         }
 
-        public FT232HDriver()
+        public FT232HDriver(string CSPin, string CEPin)
         {
             var devices = FtCommon.GetDevices();
-            var ft232h = new Ft232HDevice(devices[0]);
-            var settings = new SpiConnectionSettings(0, 3) { ClockFrequency = 10_000_000, DataBitLength = 8, ChipSelectLineActiveState = PinValue.Low };
-            gpioController = ft232h.CreateGpioController();
+            ft_device = new Ft232HDevice(devices[0]);
+            var cs_pin = Ft232HDevice.GetPinNumberFromString("D3");
+            var settings = new SpiConnectionSettings(0, cs_pin) { ClockFrequency = 10_000_000, DataBitLength = 8, ChipSelectLineActiveState = PinValue.Low };
+            gpioController = ft_device.CreateGpioController();
 
             ce_pin = Ft232HDevice.GetPinNumberFromString("D4");
             gpioController.OpenPin(ce_pin, PinMode.Output);
-            device = ft232h.CreateSpiDevice(settings);
+            device = ft_device.CreateSpiDevice(settings);
         }
 
         public void Close()
         {
-            //throw new NotImplementedException();
+            Dispose(true);
         }
 
         public void Connect()
@@ -65,11 +69,11 @@ namespace Radio.Nordic.NRF24L01P.Drivers
                 Span<byte> response = [0, 0, 0, 0, 0, 0];
                 device.TransferFullDuplex(command, response);
                 ulong value = 0;
-                value |= (ulong)response[5];
-                value |= (ulong)response[4] << 8;
-                value |= (ulong)response[3] << 16;
-                value |= (ulong)response[2] << 24;
                 value |= (ulong)response[1] << 32;
+                value |= (ulong)response[2] << 24;
+                value |= (ulong)response[3] << 16;
+                value |= (ulong)response[4] << 8;
+                value |= (ulong)response[5];
                 Register.VALUE = value;
             }
         }
@@ -103,13 +107,51 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             {
                 Span<byte> command = stackalloc byte[6];
                 command[0] = Register.WRITE;
-                // Extract the least significant 5 bytes of the ulong
-                Span<byte> ulongBytes = BitConverter.GetBytes(Register.VALUE);
-                ulongBytes.Slice(0, 5).CopyTo(command.Slice(1)); // Copy 5 bytes after the first byte
+                command[1] = (byte)(Register.VALUE >> 32);
+                command[2] = (byte)(Register.VALUE >> 24);
+                command[3] = (byte)(Register.VALUE >> 16);
+                command[4] = (byte)(Register.VALUE >> 8);
+                command[5] = (byte)(Register.VALUE >> 0);
                 Span<byte> response = [0,0,0,0,0,0];
                 device.TransferFullDuplex(command, response);
             }
 
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                if (gpioController != null) 
+                    gpioController.Dispose();
+                if (device != null) 
+                    device.Dispose();
+                if (ft_device != null)
+                    ft_device.Dispose();
+
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~FT232HDriver()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
