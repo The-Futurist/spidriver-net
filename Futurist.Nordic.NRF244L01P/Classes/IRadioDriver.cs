@@ -2,7 +2,7 @@
 
 namespace Radio.Nordic.NRF24L01P
 {
-    public interface INRF24L01IO
+    public interface IRadioDriver
     {
         void Connect();
         void Close();

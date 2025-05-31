@@ -8,14 +8,14 @@ using static Radio.Nordic.NRF24L01P.CRC;
 namespace Radio.Nordic.NRF24L01P
 {
 
-    public class NRF24L01P (INRF24L01IO IODriver) : IDisposable
+    public class NRF24L01P (IRadioDriver IODriver) : IDisposable
     {
         private bool disposedValue;
         private int channel = 0;
         private int frequency = 2400;
         private int retries = 3;
         private int interval;
-        private INRF24L01IO driver = IODriver;
+        private IRadioDriver driver = IODriver;
 
         public void Connect()
         {
@@ -81,28 +81,28 @@ namespace Radio.Nordic.NRF24L01P
 
         public void Reset()
         {
-            CONFIG config = new();
-            EN_AA en_aa = new();
-            EN_RXADDR en_rxaddr = new();
-            SETUP_AW setup_aw = new();
-            SETUP_RETR setup_retr = new();
-            RF_CH rf_ch = new();
-            RF_SETUP rf_setup = new();
-            STATUS status = new();
-            RX_ADDR_P0 rx_addr_p0 = new();
-            RX_ADDR_P1 rx_addr_p1 = new();
-            RX_ADDR_P2 rx_addr_p2 = new();
-            RX_ADDR_P3 rx_addr_p3 = new();
-            RX_ADDR_P4 rx_addr_p4 = new();
-            RX_ADDR_P5 rx_addr_p5 = new();
-            TX_ADDR tx_addr = new();
-            RX_PW_P0 rx_pw0 = new();
-            RX_PW_P1 rx_pw1 = new();
-            RX_PW_P2 rx_pw2 = new();
-            RX_PW_P3 rx_pw3 = new();
-            RX_PW_P4 rx_pw4 = new();
-            RX_PW_P5 rx_pw5 = new();
-            FEATURE feature= new FEATURE();
+            CONFIG config = default;
+            EN_AA en_aa = default;
+            EN_RXADDR en_rxaddr = default;
+            SETUP_AW setup_aw = default;
+            SETUP_RETR setup_retr = default;
+            RF_CH rf_ch = default;
+            RF_SETUP rf_setup = default;
+            STATUS status = default;
+            RX_ADDR_P0 rx_addr_p0 = default ;
+            RX_ADDR_P1 rx_addr_p1 = default;
+            RX_ADDR_P2 rx_addr_p2 = default;
+            RX_ADDR_P3 rx_addr_p3 = default ;
+            RX_ADDR_P4 rx_addr_p4 = default;
+            RX_ADDR_P5 rx_addr_p5 = default;
+            TX_ADDR tx_addr = default   ;
+            RX_PW_P0 rx_pw0 = default;
+            RX_PW_P1 rx_pw1 = default;
+            RX_PW_P2 rx_pw2 = default;
+            RX_PW_P3 rx_pw3 = default;
+            RX_PW_P4 rx_pw4 = default;
+            RX_PW_P5 rx_pw5 = default;
+            FEATURE feature = default;
 
             config.EN_CRC = true;
 

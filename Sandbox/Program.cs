@@ -1,6 +1,4 @@
 ﻿using Radio.Nordic.NRF24L01P;
-using SpiDriver;
-using System.Text;
 using static Radio.Nordic.NRF24L01P.CRC;
 using static Sandbox.Boards;
 using static Radio.Nordic.NRF24L01P.Direction;
@@ -20,17 +18,17 @@ namespace Sandbox
         {
             byte[] message = { 0xAB, 0xCD };
 
-            STATUS sTATUS = new STATUS();
-
             try
             {
-                if (NRF24L01P.TryGetNrfComPort(out var port))
+                //if (NRF24L01P.TryGetNrfComPort(out var port))
                 {
-                    var iodriver = NRF24L01PFactory.CreateSPIDriverIO(port, Output.A);
+                    //Console.WriteLine($"Using Port: {port}.");
+
+                    var iodriver = DriverFactory.CreateFT232H(); //DriverFactory.CreateSPIDriver(port, Output.A);
 
                     using NRF24L01P radio = new(iodriver);
 
-                    Console.WriteLine($"Using Port: {port}.");
+                    radio.ReadRegister<RX_ADDR_P0>(out var reggie);
 
                     radio.Connect();
                     radio.Reset();
@@ -61,10 +59,10 @@ namespace Sandbox
                         }
                     }
                 }
-                else
-                {
-                    Console.WriteLine("No NRF Device COM Port was found on this computer");
-                }
+                //else
+                //{
+                //    Console.WriteLine("No NRF Device COM Port was found on this computer");
+                //}
             }
             catch (Exception ex)
             {

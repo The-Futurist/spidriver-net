@@ -15,8 +15,8 @@
     {
         public byte REGID { get; }
         public ulong VALUE { get; set; }
-        public byte READ { get => (byte)(0x00 | REGID); }
-        public byte WRITE { get => (byte)(0x02 | REGID); }
+        public byte READ { get => (byte)(COMMAND.R_REGISTER | REGID); }
+        public byte WRITE { get => (byte)(COMMAND.W_REGISTER | REGID); }
         public int LENGTH { get; }
     }
 

@@ -6,6 +6,9 @@
         public byte REGID => 0x00;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public bool RESERVED => bits.BIT7;
+        public CONFIG()
+        {
+        }
         public bool MASK_RX_DR
         {
             get => bits.BIT6; set => bits.BIT6 = value;

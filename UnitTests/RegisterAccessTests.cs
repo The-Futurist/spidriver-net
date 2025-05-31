@@ -8,16 +8,16 @@ namespace UnitTests
     public sealed class RegisterAccessTests
     {
         public static string PORT; // NRF24L01P.TryGetNrfComPort();
-        private static INRF24L01IO iodriver;
+        private static IRadioDriver iodriver;
 
         static RegisterAccessTests()
         {
-            if (NRF24L01P.TryGetNrfComPort(out PORT) == false)
-            {
-                throw new InvalidOperationException("No atatched device was detectec.");
-            }
+            //if (NRF24L01P.TryGetNrfComPort(out PORT) == false)
+            //{
+            //    throw new InvalidOperationException("No atatched device was detectec.");
+            //}
 
-            iodriver = NRF24L01PFactory.CreateSPIDriverIO(PORT, Output.A);
+            iodriver = DriverFactory.CreateFT232H(); //DriverFactory.CreateSPIDriver(PORT, Output.A);
 
         }
         [TestMethod]

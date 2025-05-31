@@ -14,6 +14,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Futurist.Nordic.NRF244L01P\Futurist.Nordic.NRF24L01P.csproj" />
+	  <PackageReference Include="IoT.Device.Bindings" Version="3.2.0" />
+
   </ItemGroup>
 
 </Project>
