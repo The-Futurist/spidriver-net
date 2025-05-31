@@ -7,7 +7,7 @@ namespace UnitTests
     [TestClass]
     public sealed class RegisterAccessTests
     {
-        public static string PORT; // NRF24L01P.TryGetNrfComPort();
+        public static string PORT = String.Empty; // NRF24L01P.TryGetNrfComPort();
 
         static RegisterAccessTests()
         {

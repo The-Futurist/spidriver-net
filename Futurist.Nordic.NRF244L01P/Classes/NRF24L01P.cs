@@ -23,7 +23,7 @@ namespace Radio.Nordic.NRF24L01P
         }
         public static bool TryGetNrfComPort(out string Port)
         {
-            Port = null;
+            Port = String.Empty;
 
             using var searcher = new ManagementObjectSearcher("SELECT Manufacturer, Name FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'").Get();
 

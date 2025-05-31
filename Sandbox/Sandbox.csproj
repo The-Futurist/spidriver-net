@@ -8,14 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Management" Version="9.0.4" />
-	  <PackageReference Include="IoT.Device.Bindings" Version="3.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Futurist.Nordic.NRF244L01P\Futurist.Nordic.NRF24L01P.csproj" />
-	  <PackageReference Include="IoT.Device.Bindings" Version="3.2.0" />
-
+    <PackageReference Include="System.Management" Version="9.0.4" />
+	<PackageReference Include="IoT.Device.Bindings" Version="3.2.0" />
   </ItemGroup>
 
 </Project>
