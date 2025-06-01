@@ -8,7 +8,13 @@
         public ulong VALUE { get => bits.BYTES; set => bits.BYTES = value; }
         public ulong ADDRESS
         {
-            get => bits.BYTES; set => bits.BYTES = value;
+            get => bits.BYTES;
+            set
+            {
+                ArgumentOutOfRangeException.ThrowIfGreaterThan(value, 0x00_00_00_FF_FF_FF_FF_FFUL);
+
+                bits.BYTES = value;
+            }
         }
 
         public int LENGTH => 5;

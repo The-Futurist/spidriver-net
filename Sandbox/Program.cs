@@ -12,36 +12,34 @@ namespace Sandbox
     {
         private static readonly Address[] boards = [new(NUCLEO_1), new(NUCLEO_3)];//, new(NUCLEO_3) };
         private static readonly string text = "I am a test messags of length 32";
-        private static readonly Random rand = new(); // Create Random instance
+        private static readonly Random random = new();
+        private static readonly Random rand = random; // Create Random instance
         private static int msgCount = 0;
+
         static void Main(string[] argv)
         {
-            byte[] message = [0xAB, 0xCD, 0xEF];
+            byte[] message = [0xAB, 0xCD, 0xEF,0x4A, 0x66, 0x8B, 0x4C];
 
             try
             {
-                var settings = new FT232HSettings() { CSPin = "D3", CEPin = "D4", ClockSpeed = 10_000_000 };
+                using NRF24L01P radio = NRF24L01P.Create(new FT232HSettings() { CSPin = "D3", CEPin = "D4", ClockSpeed = 10_000_000 });
 
-                using NRF24L01P radio = NRF24L01P.Create(settings);
-
-                radio.Connect();
                 radio.Reset();
                 radio.ConfigureRadio(Channel: 9, OutputPower.Min, DataRate.Med);
                 radio.ClearInterruptFlags(true, true, true);
                 radio.SetPipeState(Pipe.Pipe_0, true);
                 radio.SetPipeState(Pipe.Pipe_1, false);
-                radio.SetDirection(Receive);
                 radio.SetAutoAck(Pipe.Pipe_0, true);
-                radio.SetDirection(Transmit);
+                radio.WorkingMode = Receive;
                 radio.SetCRC(true, TwoBytes);
-                radio.SetAddressWidth(5);
+                radio.AddressWidth = 5;    // must be either 3 or 5 no other values allowed
                 radio.SetAutoAckRetries(Interval: 1, MaxRetries: 10);
 
                 // Variable length payloads over pipe 0 (the boards listening address)
 
-                radio.SetDynamicPayload(true);
+                radio.DynamicPayloads = true;
                 radio.SetDynamicPayloadPipe(Pipe.Pipe_0, true);
-                radio.SetDynamicAck(true);
+                radio.DynamicAck = true;
                 radio.PowerUp();
 
                 while (true)
@@ -67,17 +65,17 @@ namespace Sandbox
         private static void SendMessage(NRF24L01P Radio, Address Address, byte[] Message)
         {
             Radio.SetReceiveAddressLong(Address, Pipe.Pipe_0);
-            Radio.SetTransmitAddress(Address);
+            Radio.TransmitAddress = Address;
 
             int size = Message.Length;
 
-            Radio.SetDirection(Transmit);
+            Radio.WorkingMode = Transmit;
 
             Radio.SendPayload(Message, size, true);
 
             var status = Radio.PollStatusUntil(s => s.MAX_RT | s.TX_DS);
 
-            Radio.SetDirection(Receive);
+            Radio.WorkingMode = Receive;
 
             if (status.MAX_RT)
             {

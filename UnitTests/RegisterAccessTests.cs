@@ -1,5 +1,6 @@
 ﻿using Radio.Nordic.NRF24L01P;
 using static Radio.Nordic.NRF24L01P.Literals;
+using static Radio.Nordic.NRF24L01P.Pipe;
 
 namespace UnitTests
 {
@@ -81,28 +82,28 @@ namespace UnitTests
             nrf.Connect();
             nrf.ReadRegister<EN_AA>(out var restore);
             nrf.ReadRegister<EN_AA>(out var changed);
-            changed.ENAA_P0 = !restore.ENAA_P0;
-            changed.ENAA_P1 = !restore.ENAA_P1;
-            changed.ENAA_P2 = !restore.ENAA_P2;
-            changed.ENAA_P3 = !restore.ENAA_P3;
-            changed.ENAA_P4 = !restore.ENAA_P4;
-            changed.ENAA_P5 = !restore.ENAA_P5;
+            changed[Pipe_0] = !restore[Pipe_0];
+            changed[Pipe_1] = !restore[Pipe_1];
+            changed[Pipe_2] = !restore[Pipe_2];
+            changed[Pipe_3] = !restore[Pipe_3];
+            changed[Pipe_4] = !restore[Pipe_4];
+            changed[Pipe_5] = !restore[Pipe_5];
             nrf.WriteRegister(ref changed);
             nrf.ReadRegister<EN_AA>(out changed);
-            Assert.AreNotEqual(changed.ENAA_P0, restore.ENAA_P0);
-            Assert.AreNotEqual(changed.ENAA_P1, restore.ENAA_P1);
-            Assert.AreNotEqual(changed.ENAA_P2, restore.ENAA_P2);
-            Assert.AreNotEqual(changed.ENAA_P3, restore.ENAA_P3);
-            Assert.AreNotEqual(changed.ENAA_P4, restore.ENAA_P4);
-            Assert.AreNotEqual(changed.ENAA_P5, restore.ENAA_P5);
+            Assert.AreNotEqual(changed[Pipe_0], restore[Pipe_0]);
+            Assert.AreNotEqual(changed[Pipe_1], restore[Pipe_1]);
+            Assert.AreNotEqual(changed[Pipe_2], restore[Pipe_2]);
+            Assert.AreNotEqual(changed[Pipe_3], restore[Pipe_3]);
+            Assert.AreNotEqual(changed[Pipe_4], restore[Pipe_4]);
+            Assert.AreNotEqual(changed[Pipe_5], restore[Pipe_5]);
             nrf.WriteRegister(ref restore);
             nrf.ReadRegister<EN_AA>(out changed);
-            Assert.AreEqual(changed.ENAA_P0, restore.ENAA_P0);
-            Assert.AreEqual(changed.ENAA_P1, restore.ENAA_P1);
-            Assert.AreEqual(changed.ENAA_P2, restore.ENAA_P2);
-            Assert.AreEqual(changed.ENAA_P3, restore.ENAA_P3);
-            Assert.AreEqual(changed.ENAA_P4, restore.ENAA_P4);
-            Assert.AreEqual(changed.ENAA_P5, restore.ENAA_P5);
+            Assert.AreEqual(changed[Pipe_0], restore[Pipe_0]);
+            Assert.AreEqual(changed[Pipe_1], restore[Pipe_1]);
+            Assert.AreEqual(changed[Pipe_2], restore[Pipe_2]);
+            Assert.AreEqual(changed[Pipe_3], restore[Pipe_3]);
+            Assert.AreEqual(changed[Pipe_4], restore[Pipe_4]);
+            Assert.AreEqual(changed[Pipe_5], restore[Pipe_5]);
         }
         [TestMethod]
         [DoNotParallelize]
@@ -320,28 +321,28 @@ namespace UnitTests
             nrf.Connect();
             nrf.ReadRegister<DYNPD>(out var restore);
             nrf.ReadRegister<DYNPD>(out var changed);
-            changed.DPL_P0 = !restore.DPL_P0;
-            changed.DPL_P1 = !restore.DPL_P1;
-            changed.DPL_P2 = !restore.DPL_P2;
-            changed.DPL_P3 = !restore.DPL_P3;
-            changed.DPL_P4 = !restore.DPL_P4;
-            changed.DPL_P5 = !restore.DPL_P5;
+            changed[Pipe_0] = !restore[Pipe_0];
+            changed[Pipe_1] = !restore[Pipe_1];
+            changed[Pipe_2] = !restore[Pipe_2];
+            changed[Pipe_3] = !restore[Pipe_3];
+            changed[Pipe_4] = !restore[Pipe_4];
+            changed[Pipe_5] = !restore[Pipe_5];
             nrf.WriteRegister(ref changed);
             nrf.ReadRegister<DYNPD>(out changed);
-            Assert.AreNotEqual(changed.DPL_P0, restore.DPL_P0);
-            Assert.AreNotEqual(changed.DPL_P1, restore.DPL_P1);
-            Assert.AreNotEqual(changed.DPL_P2, restore.DPL_P2);
-            Assert.AreNotEqual(changed.DPL_P3, restore.DPL_P3);
-            Assert.AreNotEqual(changed.DPL_P4, restore.DPL_P4);
-            Assert.AreNotEqual(changed.DPL_P5, restore.DPL_P5);
+            Assert.AreNotEqual(changed[Pipe_0], restore[Pipe_0]);
+            Assert.AreNotEqual(changed[Pipe_1], restore[Pipe_1]);
+            Assert.AreNotEqual(changed[Pipe_2], restore[Pipe_2]);
+            Assert.AreNotEqual(changed[Pipe_3], restore[Pipe_3]);
+            Assert.AreNotEqual(changed[Pipe_4], restore[Pipe_4]);
+            Assert.AreNotEqual(changed[Pipe_5], restore[Pipe_5]);
             nrf.WriteRegister(ref restore);
             nrf.ReadRegister<DYNPD>(out changed);
-            Assert.AreEqual(changed.DPL_P0, restore.DPL_P0);
-            Assert.AreEqual(changed.DPL_P1, restore.DPL_P1);
-            Assert.AreEqual(changed.DPL_P2, restore.DPL_P2);
-            Assert.AreEqual(changed.DPL_P3, restore.DPL_P3);
-            Assert.AreEqual(changed.DPL_P4, restore.DPL_P4);
-            Assert.AreEqual(changed.DPL_P5, restore.DPL_P5);
+            Assert.AreEqual(changed[Pipe_0], restore[Pipe_0]);
+            Assert.AreEqual(changed[Pipe_1], restore[Pipe_1]);
+            Assert.AreEqual(changed[Pipe_2], restore[Pipe_2]);
+            Assert.AreEqual(changed[Pipe_3], restore[Pipe_3]);
+            Assert.AreEqual(changed[Pipe_4], restore[Pipe_4]);
+            Assert.AreEqual(changed[Pipe_5], restore[Pipe_5]);
         }
         [TestMethod]
         [DoNotParallelize]

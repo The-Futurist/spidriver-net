@@ -1,14 +1,13 @@
-﻿using static Radio.Nordic.NRF24L01P.Pipe;
-using static Radio.Nordic.NRF24L01P.DataRate;
+﻿using Iot.Device.Mcp25xxx.Register;
 using static Radio.Nordic.NRF24L01P.CRC;
+using static Radio.Nordic.NRF24L01P.DataRate;
+using static Radio.Nordic.NRF24L01P.Pipe;
 
 // SEE: https://cdn.sparkfun.com/assets/3/d/8/5/1/nRF24L01P_Product_Specification_1_0.pdf
 // SEE: https://learn.microsoft.com/en-us/dotnet/iot/usb
 
 namespace Radio.Nordic.NRF24L01P
 {
-
-
     public class NRF24L01P : IDisposable
     {
         private bool disposedValue;
@@ -21,12 +20,14 @@ namespace Radio.Nordic.NRF24L01P
         public static NRF24L01P Create(DriverSettings Settings)
         {
             var driver = DriverFactory.CreateDriver(Settings);
-            return new NRF24L01P (driver);
+            return new NRF24L01P(driver);
         }
+
         private NRF24L01P(IRadioDriver IODriver)
         {
             driver = IODriver;
         }
+
         public void Connect()
         {
             driver.Connect();
@@ -74,7 +75,6 @@ namespace Radio.Nordic.NRF24L01P
         {
             CE = Pin.High; // device.SetOutput(ce_pin, true);
         }
-
         public void Reset()
         {
             CONFIG config = default;
@@ -85,13 +85,13 @@ namespace Radio.Nordic.NRF24L01P
             RF_CH rf_ch = default;
             RF_SETUP rf_setup = default;
             STATUS status = default;
-            RX_ADDR_P0 rx_addr_p0 = default ;
+            RX_ADDR_P0 rx_addr_p0 = default;
             RX_ADDR_P1 rx_addr_p1 = default;
             RX_ADDR_P2 rx_addr_p2 = default;
-            RX_ADDR_P3 rx_addr_p3 = default ;
+            RX_ADDR_P3 rx_addr_p3 = default;
             RX_ADDR_P4 rx_addr_p4 = default;
             RX_ADDR_P5 rx_addr_p5 = default;
-            TX_ADDR tx_addr = default   ;
+            TX_ADDR tx_addr = default;
             RX_PW_P0 rx_pw0 = default;
             RX_PW_P1 rx_pw1 = default;
             RX_PW_P2 rx_pw2 = default;
@@ -102,15 +102,15 @@ namespace Radio.Nordic.NRF24L01P
 
             config.EN_CRC = true;
 
-            en_aa.ENAA_P5 = true;
-            en_aa.ENAA_P4 = true;
-            en_aa.ENAA_P3 = true;
-            en_aa.ENAA_P2 = true;
-            en_aa.ENAA_P1 = true;
-            en_aa.ENAA_P0 = true;
+            en_aa[Pipe_0] = true;
+            en_aa[Pipe_1] = true;
+            en_aa[Pipe_2] = true;
+            en_aa[Pipe_3] = true;
+            en_aa[Pipe_4] = true;
+            en_aa[Pipe_5] = true;
 
-            en_rxaddr.ERX_P0 = true;
-            en_rxaddr.ERX_P1 = true;
+            en_rxaddr[Pipe_0] = true;
+            en_rxaddr[Pipe_1] = true;
 
             setup_aw.AW = 3;
 
@@ -178,9 +178,9 @@ namespace Radio.Nordic.NRF24L01P
             if (channel > 124)
                 throw new ArgumentException("The value must be >= 0 and <= 124.", nameof(Channel));
 
-            EditRegister((ref RF_CH rf_ch) => 
-            { 
-                rf_ch.CH = Channel; 
+            EditRegister((ref RF_CH rf_ch) =>
+            {
+                rf_ch.CH = Channel;
             }
             );
 
@@ -232,94 +232,33 @@ namespace Radio.Nordic.NRF24L01P
         {
             ReadRegister<EN_RXADDR>(out var reg);
 
-            switch (Pipe)
-            {
-                case Pipe_0:
-                    {
-                        reg.ERX_P0 = Active;
-                        break;
-                    }
-                case Pipe_1:
-                    {
-                        reg.ERX_P1 = Active;
-                        break;
-                    }
-                case Pipe_2:
-                    {
-                        reg.ERX_P2 = Active;
-                        break;
-                    }
-                case Pipe_3:
-                    {
-                        reg.ERX_P3 = Active;
-                        break;
-                    }
-                case Pipe_4:
-                    {
-                        reg.ERX_P4 = Active;
-                        break;
-                    }
-                case Pipe_5:
-                    {
-                        reg.ERX_P5 = Active;
-                        break;
-                    }
-            }
+            reg[Pipe] = Active;
 
             WriteRegister(ref reg);
         }
         public void SetAutoAck(Pipe Pipe, bool State)
         {
-            ReadRegister<EN_AA>(out var reg);
+            ReadRegister<EN_AA>(out var en_aa);
 
-            switch (Pipe)
-            {
-                case Pipe_0:
-                    {
-                        reg.ENAA_P0 = State;
-                        break;
-                    }
-                case Pipe_1:
-                    {
-                        reg.ENAA_P1 = State;
-                        break;
-                    }
-                case Pipe_2:
-                    {
-                        reg.ENAA_P2 = State;
-                        break;
-                    }
-                case Pipe_3:
-                    {
-                        reg.ENAA_P3 = State;
-                        break;
-                    }
-                case Pipe_4:
-                    {
-                        reg.ENAA_P4 = State;
-                        break;
-                    }
-                case Pipe_5:
-                    {
-                        reg.ENAA_P5 = State;
-                        break;
-                    }
-            }
+            en_aa[Pipe] = State;
 
-            WriteRegister(ref reg);
+            WriteRegister(ref en_aa);
         }
-
-        public void SetDirection(Direction Direction )
+        public Direction WorkingMode
         {
-            EditRegister((ref CONFIG config) =>
+            get
             {
-                if (Direction == Direction.Transmit)
-                    config.PRIM_RX = false;
-                else
-                    config.PRIM_RX = true;
-            });
+                ReadRegister<CONFIG>(out var setup);
+                return setup.PRIM_RX ? Direction.Receive : Direction.Transmit;
+            }
+            set
+            {
+                EditRegister((ref CONFIG setup) =>
+                {
+                    setup.PRIM_RX = value == Direction.Receive ? true : false;
+                });
+            }
         }
-
         public void SetCRC(bool EnableCrc, CRC CrcSize)
         {
 
@@ -328,24 +267,22 @@ namespace Radio.Nordic.NRF24L01P
                 config.EN_CRC = EnableCrc;
                 config.CRCO = CrcSize != OneByte;
             });
-
-            ReadRegister<CONFIG>(out var reg);
-            reg.EN_CRC = EnableCrc;
-            reg.CRCO = CrcSize != OneByte;
-            WriteRegister(ref reg);
         }
-
-        public void SetAddressWidth(byte ByteWidth)
+        public byte AddressWidth
         {
-            if (ByteWidth < 3 || ByteWidth > 5)
-                throw new ArgumentException("Value must be >= 3 and <= 5", nameof(ByteWidth));
-
-            EditRegister((ref SETUP_AW reg) =>
+            get
             {
-                reg.AW = (byte)(ByteWidth - 2);
-            });
+                ReadRegister<SETUP_AW>(out var setup);
+                return (byte)(setup.AW + 2);
+            }
+            set
+            {
+                EditRegister((ref SETUP_AW setup) =>
+                {
+                    setup.AW = (byte)(value - 2);
+                });
+            }
         }
-
         public void SetAutoAckRetries(byte Interval, byte MaxRetries)
         {
             if (Interval > 15)
@@ -363,15 +300,21 @@ namespace Radio.Nordic.NRF24L01P
             interval = 250 + (250 * Interval);
             retries = MaxRetries;
         }
-
-        public void SetDynamicPayload(bool State)
+        public bool DynamicPayloads
         {
-            EditRegister((ref FEATURE reg) =>
+            get
             {
-                reg.EN_DPL = State;
-            });
+                ReadRegister<FEATURE>(out var feature);
+                return feature.EN_DPL;
+            }
+            set
+            {
+                EditRegister((ref FEATURE reg) =>
+                {
+                    reg.EN_DPL = value;
+                });
+            }
         }
-
         public void SetDynamicPayloadPipe(Pipe Pipe, bool State)
         {
             EditRegister((ref DYNPD dynpd) =>
@@ -379,11 +322,20 @@ namespace Radio.Nordic.NRF24L01P
                 dynpd[Pipe] = State;
             });
         }
-        public void SetDynamicAck(bool State)
+        public bool DynamicAck
         {
-            ReadRegister<FEATURE>(out var feature);
-            feature.EN_DYN_ACK = State;
-            WriteRegister(ref feature);
+            get
+            {
+                ReadRegister<FEATURE>(out var feature);
+                return feature.EN_DYN_ACK;
+            }
+            set
+            {
+                EditRegister((ref FEATURE reg) =>
+                {
+                    reg.EN_DYN_ACK = value;
+                });
+            }
         }
         public void PowerUp()
         {
@@ -392,7 +344,6 @@ namespace Radio.Nordic.NRF24L01P
             WriteRegister(ref reg);
             Thread.Sleep(2); // 1.5 mS or more is the required settling time. 
         }
-
         public void SetReceiveAddressLong(Address Address, Pipe Pipe)
         {
             if (Pipe != Pipe.Pipe_0 && Pipe != Pipe.Pipe_1)
@@ -420,16 +371,21 @@ namespace Radio.Nordic.NRF24L01P
                     }
             }
         }
-
-        public void SetTransmitAddress(Address Address)
+        public Address TransmitAddress
         {
-            TX_ADDR txaddr = new()
+            get
             {
-                ADDRESS = Address.ADDRESS
-            };
-            WriteRegister(ref txaddr);
+                ReadRegister<TX_ADDR>(out var feature);
+                return new Address(feature.ADDRESS);
+            }
+            set
+            {
+                EditRegister((ref TX_ADDR reg) =>
+                {
+                    reg.ADDRESS = value.ADDRESS;
+                });
+            }
         }
-
         public void SendPayload(byte[] Buffer, bool Ack)
         {
             SendPayload(Buffer, Buffer.Length, Ack);
@@ -463,7 +419,6 @@ namespace Radio.Nordic.NRF24L01P
         {
             driver.SendCommand(COMMAND.FLUSH_RX);
         }
-
         public STATUS PollStatusUntil(Func<STATUS, bool> func)
         {
             ReadRegister<STATUS>(out var reg);
