@@ -16,51 +16,42 @@ namespace Sandbox
         private static int msgCount = 0;
         static void Main(string[] argv)
         {
-            byte[] message = { 0xAB, 0xCD };
+            byte[] message = { 0xAB, 0xCD, 0xEF };
 
             try
             {
-                //if (NRF24L01P.TryGetNrfComPort(out var port))
+                var settings = new FT232HSettings() { CSPin = "D3", CEPin = "D4", ClockSpeed = 10_000_000 };
+
+                using NRF24L01P radio = NRF24L01P.Create(settings);
+
+                radio.Connect();
+                radio.Reset();
+                radio.ConfigureRadio(Channel: 9, OutputPower.Min, DataRate.Med);
+                radio.ClearInterruptFlags(true, true, true);
+                radio.SetPipeState(Pipe.Pipe_0, true);
+                radio.SetPipeState(Pipe.Pipe_1, false);
+                radio.SetDirection(Receive);
+                radio.SetAutoAck(Pipe.Pipe_0, true);
+                radio.SetDirection(Transmit);
+                radio.SetCRC(true, TwoBytes);
+                radio.SetAddressWidth(5);
+                radio.SetAutoAckRetries(Interval: 1, MaxRetries: 10);
+
+                // Variable length payloads over pipe 0 (the boards listening address)
+
+                radio.SetDynamicPayload(true);
+                radio.SetDynamicPayloadPipe(Pipe.Pipe_0, true);
+                radio.SetDynamicAck(true);
+                radio.PowerUp();
+
+                while (true)
                 {
-                    //Console.WriteLine($"Using Port: {port}.");
-
-                    var settings = new FT232HSettings() { CSPin = "D3", CEPin = "D4", ClockSpeed = 10_000_000 };
-
-                    using NRF24L01P radio = NRF24L01P.Create(settings);
-
-                    radio.Connect();
-                    radio.Reset();
-                    radio.ConfigureRadio(Channel: 9, OutputPower.Min, DataRate.Med);
-                    radio.ClearInterruptFlags(true, true, true);
-                    radio.SetPipeState(Pipe.Pipe_0, true);
-                    radio.SetPipeState(Pipe.Pipe_1, false);
-
-                    radio.SetAutoAck(Pipe.Pipe_0, true);
-                    radio.SetDirection(Transmit);
-                    radio.SetCRC(true, TwoBytes);
-                    radio.SetAddressWidth(5);
-                    radio.SetAutoAckRetries(Interval: 1, MaxRetries: 10);
-
-                    // Variable length payloads over pipe 0 (the boards listening address)
-
-                    radio.SetDynamicPayload(true);
-                    radio.SetDynamicPayloadPipe(Pipe.Pipe_0, true);
-                    radio.SetDynamicAck(true);
-                    radio.PowerUp();
-
-                    while (true)
+                    foreach (var board in boards)
                     {
-                        foreach (var board in boards)
-                        {
-                            SendMessage(radio, board, message);
-                            Thread.Sleep(10);
-                        }
+                        SendMessage(radio, board, message);
+                        Thread.Sleep(1);
                     }
                 }
-                //else
-                //{
-                //    Console.WriteLine("No NRF Device COM Port was found on this computer");
-                //}
             }
             catch (Exception ex)
             {
@@ -80,9 +71,13 @@ namespace Sandbox
 
             int size = Message.Length;
 
+            Radio.SetDirection(Transmit);
+
             Radio.SendPayload(Message, size, true);
 
             var status = Radio.PollStatusUntil(s => s.MAX_RT | s.TX_DS);
+
+            Radio.SetDirection(Receive);
 
             if (status.MAX_RT)
             {

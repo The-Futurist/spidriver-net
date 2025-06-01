@@ -3,6 +3,7 @@ using static Radio.Nordic.NRF24L01P.DataRate;
 using static Radio.Nordic.NRF24L01P.CRC;
 
 // SEE: https://cdn.sparkfun.com/assets/3/d/8/5/1/nRF24L01P_Product_Specification_1_0.pdf
+// SEE: https://learn.microsoft.com/en-us/dotnet/iot/usb
 
 namespace Radio.Nordic.NRF24L01P
 {
@@ -21,7 +22,6 @@ namespace Radio.Nordic.NRF24L01P
             var driver = DriverFactory.CreateDriver(Settings);
             return new NRF24L01P (driver);
         }
-
         private NRF24L01P(IRadioDriver IODriver)
         {
             driver = IODriver;
