@@ -218,7 +218,8 @@ namespace Radio.Nordic.NRF24L01P
         }
         public void ClearInterruptFlags(bool RX_DR, bool TX_DS, bool MAX_RT)
         {
-            // The bits in the NRF are write 1 to clear, so setting them true, clears that interrupt
+            // The bits in the NRF are write 1 to clear, so setting them true, clears that flag (and interrupt)
+            // setting a flag to zero leaves it's value unchanged. 
 
             EditRegister((ref STATUS status) =>
             {

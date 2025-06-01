@@ -27,7 +27,6 @@ namespace Radio.Nordic.NRF24L01P.Drivers
         {
             set => gpioController?.Write(ce_pin, value == Pin.High ? PinValue.High : PinValue.Low);
         }
-
         /// <summary>
         /// 
         /// </summary>
@@ -44,16 +43,13 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             gpioController.OpenPin(ce_pin, PinMode.Output);
             device = ft_device.CreateSpiDevice(settings);
         }
-
         public void Close()
         {
             Dispose(true);
         }
-
         public void Connect()
         {
         }
-
         public void ReadRegister<T>(out T Register) where T : struct, IRegister
         {
             Register = default;
@@ -79,14 +75,12 @@ namespace Radio.Nordic.NRF24L01P.Drivers
                 Register.VALUE = value;
             }
         }
-
         public void SendCommand(byte Command)
         {
             Span<byte> command = [Command];
             Span<byte> response = [0];
             device?.TransferFullDuplex(command, response);
         }
-
         public void SendCommand(byte Command, Span<byte> Buffer)
         {
             Span<byte> command = stackalloc byte[Buffer.Length + 1]; // Allocate space for 6 bytes
@@ -95,13 +89,10 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             Buffer.CopyTo(command[1..]); // Copy the rest
             device?.TransferFullDuplex(command, response);
         }
-
-
         public void SendCommand(byte Command, byte[] Buffer)
         {
             SendCommand(Command, Buffer.AsSpan());
         }
-
         public void WriteRegister<T>(ref T Register) where T : struct, IRegister
         {
 
@@ -127,7 +118,6 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             }
 
         }
-
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -146,26 +136,23 @@ namespace Radio.Nordic.NRF24L01P.Drivers
                 disposedValue = true;
             }
         }
-
         // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
         // ~FT232HDriver()
         // {
         //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         //     Dispose(disposing: false);
         // }
-
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-
         public void EditRegister<T>(RefAction<T> Editor) where T : struct, IRegister
         {
-            ReadRegister(out T reg);
-            Editor(ref reg);
-            WriteRegister<T>(ref reg);
+            ReadRegister(out T register);
+            Editor(ref register);
+            WriteRegister(ref register);
         }
     }
 }

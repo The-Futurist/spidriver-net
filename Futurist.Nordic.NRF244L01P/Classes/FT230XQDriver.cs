@@ -22,25 +22,30 @@ namespace Radio.Nordic.NRF24L01P.Drivers
         public Pin CE { set => device.SetOutput(ce_pin, value == Pin.High); }
         public static bool TryGetNrfComPort(out string Port)
         {
-            Port = String.Empty;
-
-            using var searcher = new ManagementObjectSearcher("SELECT Manufacturer, Name FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'").Get();
-
-            foreach (var obj in searcher)
+            if (OperatingSystem.IsWindows())
             {
-                if (obj != null)
-                    if (obj["Manufacturer"]?.ToString() == "FTDI")
-                    {
-                        var s = obj["Name"]?.ToString()?.Split(['(', ')'], 10);
-                        if (s != null)
-                        {
-                            Port = s[1];
-                            return true;
-                        }
-                    }
-            }
+                Port = String.Empty;
 
-            return false;
+                using var searcher = new ManagementObjectSearcher("SELECT Manufacturer, Name FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'").Get();
+
+                foreach (var obj in searcher)
+                {
+                    if (obj != null)
+                        if (obj["Manufacturer"]?.ToString() == "FTDI")
+                        {
+                            var s = obj["Name"]?.ToString()?.Split(['(', ')'], 10);
+                            if (s != null)
+                            {
+                                Port = s[1];
+                                return true;
+                            }
+                        }
+                }
+
+                return false;
+            }
+            else
+                throw new PlatformNotSupportedException();
         }
         public void Close()
         {

@@ -22,7 +22,7 @@ namespace Sandbox
 
             try
             {
-                using NRF24L01P radio = NRF24L01P.Create(new FT232HSettings() { CSPin = "D3", CEPin = "D4", ClockSpeed = 10_000_000 });
+                using var radio = NRF24L01P.Create(new FT232HSettings() { CSPin = "D3", CEPin = "D4", ClockSpeed = 10_000_000 });
 
                 radio.Reset();
                 radio.ConfigureRadio(Channel: 9, OutputPower.Min, DataRate.Med);
@@ -33,7 +33,7 @@ namespace Sandbox
                 radio.WorkingMode = Receive;
                 radio.SetCRC(true, TwoBytes);
                 radio.AddressWidth = 5;    // must be either 3 or 5 no other values allowed
-                radio.SetAutoAckRetries(Interval: 1, MaxRetries: 10);
+                radio.SetAutoAckRetries(Interval: 1, MaxRetries: 4);
 
                 // Variable length payloads over pipe 0 (the boards listening address)
 
@@ -59,9 +59,7 @@ namespace Sandbox
             {
                 Console.ResetColor();
             }
-
         }
-
         private static void SendMessage(NRF24L01P Radio, Address Address, byte[] Message)
         {
             Radio.SetReceiveAddressLong(Address, Pipe.Pipe_0);
@@ -95,7 +93,6 @@ namespace Sandbox
 
             Radio.ClearInterruptFlags(true, true, true);
         }
-
         private static void LogSuccess(int Num)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
