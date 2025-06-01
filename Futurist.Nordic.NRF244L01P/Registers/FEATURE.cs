@@ -7,15 +7,15 @@
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
         public bool EN_DYN_ACK
         {
-            get => bits.BIT0; set => bits.BIT0 = value;
+            get => bits[0]; set => bits[0] = value;
         }
         public bool EN_ACK_PAY
         {
-            get => bits.BIT1; set => bits.BIT1 = value;
+            get => bits[1]; set => bits[1] = value;
         }
         public bool EN_DPL
         {
-            get => bits.BIT2; set => bits.BIT2 = value;
+            get => bits[2]; set => bits[2] = value;
         }
 
         public int LENGTH => 1;

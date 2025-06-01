@@ -18,8 +18,8 @@ namespace Radio.Nordic.NRF24L01P.Drivers
     {
         private readonly Device device = new(ComPort);
         private readonly Output ce_pin = CEPin;
-        public Pin CS { set => device.SetOutput(Output.CS, value == Pin.Low ? true : false); }
-        public Pin CE { set => device.SetOutput(ce_pin, value == Pin.High ? true : false); }
+        public Pin CS { set => device.SetOutput(Output.CS, value == Pin.Low); }
+        public Pin CE { set => device.SetOutput(ce_pin, value == Pin.High); }
         public static bool TryGetNrfComPort(out string Port)
         {
             Port = String.Empty;
@@ -28,12 +28,16 @@ namespace Radio.Nordic.NRF24L01P.Drivers
 
             foreach (var obj in searcher)
             {
-                if (obj["Manufacturer"].ToString() == "FTDI")
-                {
-                    var s = obj["Name"].ToString().Split(['(', ')'], 10);
-                    Port = s[1];
-                    return true;
-                }
+                if (obj != null)
+                    if (obj["Manufacturer"]?.ToString() == "FTDI")
+                    {
+                        var s = obj["Name"]?.ToString()?.Split(['(', ')'], 10);
+                        if (s != null)
+                        {
+                            Port = s[1];
+                            return true;
+                        }
+                    }
             }
 
             return false;
@@ -48,6 +52,12 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             CS = Pin.High;
             CE = Pin.Low;
         }
+
+        public void EditRegister<T>(RefAction<T> Editor) where T : struct, IRegister
+        {
+            throw new NotImplementedException();
+        }
+
         public void ReadRegister<T>(out T register) where T : struct, IRegister
         {
             register = default;

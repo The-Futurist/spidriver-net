@@ -33,21 +33,21 @@
         #region BIT Fields
         public bool RX_DR
         {
-            get => bits.BIT6;
-            set => bits.BIT6 = value;
+            get => bits[6];
+            set => bits[6] = value;
         }
         public bool TX_DS
         {
-            get => bits.BIT5;
-            set => bits.BIT5 = value;
+            get => bits[5];
+            set => bits[5] = value;
         }
         public bool MAX_RT
         {
-            get => bits.BIT4;
-            set => bits.BIT4 = value;
+            get => bits[4];
+            set => bits[4] = value;
         }
         public byte RX_P_NO => (byte)((VALUE & 0x0E) >> 1);
-        public bool TX_FULL => bits.BIT0;
+        public bool TX_FULL => bits[0];
 
         public int LENGTH => 1;
         #endregion

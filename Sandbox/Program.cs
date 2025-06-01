@@ -10,13 +10,13 @@ namespace Sandbox
 
     class Program
     {
-        private static Address[] boards = { new(NUCLEO_1), new(NUCLEO_3) };//, new(NUCLEO_3) };
-        private static string text = "I am a test messags of length 32";
-        private static Random rand = new Random(); // Create Random instance
+        private static readonly Address[] boards = [new(NUCLEO_1), new(NUCLEO_3)];//, new(NUCLEO_3) };
+        private static readonly string text = "I am a test messags of length 32";
+        private static readonly Random rand = new(); // Create Random instance
         private static int msgCount = 0;
         static void Main(string[] argv)
         {
-            byte[] message = { 0xAB, 0xCD, 0xEF };
+            byte[] message = [0xAB, 0xCD, 0xEF];
 
             try
             {

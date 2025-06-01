@@ -8,19 +8,19 @@
 
         public bool CONT_WAVE
         {
-            get => bits.BIT7; set => bits.BIT7 = value;
+            get => bits[7]; set => bits[7] = value;
         }
         public bool RF_DR_LOW
         {
-            get => bits.BIT5; set => bits.BIT5 = value;
+            get => bits[5]; set => bits[5] = value;
         }
         public bool PLL_LOCK
         {
-            get => bits.BIT4; set => bits.BIT4 = value;
+            get => bits[4]; set => bits[4] = value;
         }
         public bool RF_DR_HIGH
         {
-            get => bits.BIT3; set => bits.BIT3 = value;
+            get => bits[3]; set => bits[3] = value;
         }
         public byte RF_PWR
         {

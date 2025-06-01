@@ -5,7 +5,7 @@
         private REGISTER bits;
         public byte REGID => 0x09;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
-        public bool CD_0 => bits.BIT0;
+        public bool CD_0 => bits[0];
 
         public int LENGTH => 1;
     }

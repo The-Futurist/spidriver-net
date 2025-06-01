@@ -5,37 +5,37 @@
         private REGISTER bits;
         public byte REGID => 0x00;
         public ulong VALUE { get => bits; set => bits = (REGISTER)value; }
-        public bool RESERVED => bits.BIT7;
+        public bool RESERVED => bits[7];
         public CONFIG()
         {
         }
         public bool MASK_RX_DR
         {
-            get => bits.BIT6; set => bits.BIT6 = value;
+            get => bits[6]; set => bits[6] = value;
         }
         public bool MASK_TX_DS
         {
-            get => bits.BIT5; set => bits.BIT5 = value;
+            get => bits[5]; set => bits[5] = value;
         }
         public bool MASK_MAX_RT
         {
-            get => bits.BIT4; set => bits.BIT4 = value;
+            get => bits[4]; set => bits[4] = value;
         }
         public bool EN_CRC
         {
-            get => bits.BIT3; set => bits.BIT3 = value;
+            get => bits[3]; set => bits[3] = value;
         }
         public bool CRCO
         {
-            get => bits.BIT2; set => bits.BIT2 = value;
+            get => bits[2]; set => bits[2] = value;
         }
         public bool PWR_UP
         {
-            get => bits.BIT1; set => bits.BIT1 = value;
+            get => bits[1]; set => bits[1] = value;
         }
         public bool PRIM_RX
         {
-            get => bits.BIT0; set => bits.BIT0 = value;
+            get => bits[0]; set => bits[0] = value;
         }
 
         public int LENGTH => 1;

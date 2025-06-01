@@ -2,11 +2,14 @@
 
 namespace Radio.Nordic.NRF24L01P
 {
+    public delegate void RefAction<T>(ref T R) where T : IRegister;
+
     public interface IRadioDriver
     {
         void Connect();
         void ReadRegister<T>(out T register) where T : struct, IRegister;
         void WriteRegister<T>(ref T register) where T : struct, IRegister;
+        void EditRegister<T>(RefAction<T> Editor) where T : struct, IRegister;
         void SendCommand(byte Command);
         void SendCommand(byte Command, byte[] Buffer);
         void SendCommand(byte Command, Span<byte> Buffer);
