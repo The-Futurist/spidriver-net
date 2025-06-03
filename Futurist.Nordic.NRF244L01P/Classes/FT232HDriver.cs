@@ -18,29 +18,38 @@ namespace Radio.Nordic.NRF24L01P.Drivers
         private readonly GpioController gpioController;
         private readonly Ft232HDevice ft_device;
         private readonly SpiConnectionSettings settings;
-        private readonly int ce_pin;
-        private readonly int cs_pin;
+        private readonly int cen_pin;
+        private readonly int csn_pin;
+        private readonly int irq_pin;
         private bool disposedValue;
 
-        public Pin CS { set { } }  // the IoT SPI stuff uses CSN implicitly, automatically.
-        public Pin CE 
+        public Pin CSN { set { } }  // the IoT SPI stuff uses CSN implicitly, automatically.
+        public Pin CEN 
         {
-            set => gpioController?.Write(ce_pin, value == Pin.High ? PinValue.High : PinValue.Low);
+            set => gpioController?.Write(cen_pin, value == Pin.High ? PinValue.High : PinValue.Low);
         }
+        public Pin IRQ
+        {
+            get => gpioController?.Read(irq_pin) == PinValue.High ? Pin.High : Pin.Low;
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="CSPin"></param>
         /// <param name="CEPin"></param>
-        public FT232HDriver(string CSPin, string CEPin, int ClockSpeed)
+        public FT232HDriver(string CSPin, string CEPin, string IRQPin,int ClockSpeed)
         {
-            cs_pin = Ft232HDevice.GetPinNumberFromString(CSPin);
-            ce_pin = Ft232HDevice.GetPinNumberFromString(CEPin);
-            settings = new SpiConnectionSettings(0, cs_pin) { ClockFrequency = ClockSpeed, DataBitLength = 8, ChipSelectLineActiveState = PinValue.Low };
+            csn_pin = Ft232HDevice.GetPinNumberFromString(CSPin);
+            cen_pin = Ft232HDevice.GetPinNumberFromString(CEPin);
+            irq_pin = Ft232HDevice.GetPinNumberFromString(IRQPin);
+            settings = new SpiConnectionSettings(0, csn_pin) { ClockFrequency = ClockSpeed, DataBitLength = 8, ChipSelectLineActiveState = PinValue.Low };
             var devices = FtCommon.GetDevices();
             ft_device = new Ft232HDevice(devices[0]);
             gpioController = ft_device.CreateGpioController();
-            gpioController.OpenPin(ce_pin, PinMode.Output);
+            gpioController.OpenPin(cen_pin, PinMode.Output);
+            gpioController.OpenPin(irq_pin, PinMode.Input);
+
             device = ft_device.CreateSpiDevice(settings);
         }
         public void Close()
@@ -153,6 +162,16 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             ReadRegister(out T register);
             Editor(ref register);
             WriteRegister(ref register);
+        }
+
+        private void Irq_ValueChanged(object sender, PinValueChangedEventArgs args)
+        {
+            //if (DataReceived is object)
+            //{
+            //    DataReceived(sender, new DataReceivedEventArgs(Receive(_packetSize).ToArray()));
+            //}
+            ;
+
         }
     }
 }

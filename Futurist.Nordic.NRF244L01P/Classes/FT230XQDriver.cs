@@ -18,8 +18,11 @@ namespace Radio.Nordic.NRF24L01P.Drivers
     {
         private readonly Device device = new(ComPort);
         private readonly Output ce_pin = CEPin;
-        public Pin CS { set => device.SetOutput(Output.CS, value == Pin.Low); }
-        public Pin CE { set => device.SetOutput(ce_pin, value == Pin.High); }
+        public Pin CSN { set => device.SetOutput(Output.CS, value == Pin.Low); }
+        public Pin CEN { set => device.SetOutput(ce_pin, value == Pin.High); }
+
+        public Pin IRQ => throw new NotImplementedException();
+
         public static bool TryGetNrfComPort(out string Port)
         {
             if (OperatingSystem.IsWindows())
@@ -54,8 +57,8 @@ namespace Radio.Nordic.NRF24L01P.Drivers
         public void Connect()
         {
             device.Connect();
-            CS = Pin.High;
-            CE = Pin.Low;
+            CSN = Pin.High;
+            CEN = Pin.Low;
         }
 
         public void EditRegister<T>(RefAction<T> Editor) where T : struct, IRegister
@@ -67,10 +70,10 @@ namespace Radio.Nordic.NRF24L01P.Drivers
         {
             register = default;
             byte[] reg = new byte[register.LENGTH];
-            CS = Pin.Low;
+            CSN = Pin.Low;
             device.Write([COMMAND.R_REGISTER.OR(register.REGID)], 0, 1);
             device.Read(reg, 0, register.LENGTH);
-            CS = Pin.High;
+            CSN = Pin.High;
 
             if (register.LENGTH == 1)
             {
@@ -89,9 +92,9 @@ namespace Radio.Nordic.NRF24L01P.Drivers
         }
         public void SendCommand(byte Command)
         {
-            CS = Pin.Low;
+            CSN = Pin.Low;
             device.Write([Command], 0, 1);
-            CS = Pin.High;
+            CSN = Pin.High;
         }
         public void SendCommand(byte Command, Span<byte> Buffer)
         {
@@ -99,18 +102,18 @@ namespace Radio.Nordic.NRF24L01P.Drivers
         }
         public void SendCommand(byte Command, byte[] Buffer)
         {
-            byte[] buffer = new byte[Buffer.Length+1];
+            byte[] buffer = new byte[Buffer.Length + 1];
             buffer[0] = Command;
-            Array.Copy(Buffer, 0,buffer, 1, Buffer.Length);
-            CS = Pin.Low;
+            Array.Copy(Buffer, 0, buffer, 1, Buffer.Length);
+            CSN = Pin.Low;
             device.Write(buffer, 0, buffer.Length);
-            CS = Pin.High;
+            CSN = Pin.High;
         }
         public void WriteRegister<T>(ref T register) where T : struct, IRegister
         {
             byte[] reg = new byte[register.LENGTH];
 
-            CS = Pin.Low;
+            CSN = Pin.Low;
             device.Write([COMMAND.W_REGISTER.OR(register.REGID)], 0, 1);
 
             if (register.LENGTH == 1)
@@ -127,7 +130,7 @@ namespace Radio.Nordic.NRF24L01P.Drivers
             }
 
             device.Write(reg, 0, register.LENGTH);
-            CS = Pin.High;
+            CSN = Pin.High;
         }
     }
 }

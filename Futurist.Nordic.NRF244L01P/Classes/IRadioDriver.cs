@@ -14,7 +14,9 @@ namespace Radio.Nordic.NRF24L01P
         void SendCommand(byte Command, byte[] Buffer);
         void SendCommand(byte Command, Span<byte> Buffer);
         void Close();
-        Pin CS { set; }
-        Pin CE { set; }
+        Pin CSN { set; }
+        Pin CEN { set; }
+        Pin IRQ { get; }
+
     }
 }

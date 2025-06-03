@@ -2,6 +2,7 @@
 using static Radio.Nordic.NRF24L01P.CRC;
 using static Sandbox.Boards;
 using static Radio.Nordic.NRF24L01P.Direction;
+using System.Diagnostics;
 
 namespace Sandbox
 {
@@ -10,10 +11,8 @@ namespace Sandbox
 
     class Program
     {
-        private static readonly Address[] boards = [new(NUCLEO_1), new(NUCLEO_3)];//, new(NUCLEO_3) };
-        private static readonly string text = "I am a test messags of length 32";
+        private static readonly Address[] remote_boards = [new(NUCLEO_1), new(NUCLEO_3)];//, new(NUCLEO_3) };
         private static readonly Random random = new();
-        private static readonly Random rand = random; // Create Random instance
         private static int msgCount = 0;
 
         static void Main(string[] argv)
@@ -22,7 +21,7 @@ namespace Sandbox
 
             try
             {
-                using var radio = NRF24L01P.Create(new FT232HSettings() { CSPin = "D3", CEPin = "D4", ClockSpeed = 10_000_000 });
+                using var radio = NRF24L01P.Create(new FT232HSettings() { CSNPin = "D3", CENPin = "D4", IRQPin = "D5", ClockSpeed = 10_000_000 });
 
                 radio.Reset();
                 radio.ConfigureRadio(Channel: 9, OutputPower.Min, DataRate.Med);
@@ -44,7 +43,7 @@ namespace Sandbox
 
                 while (true)
                 {
-                    foreach (var board in boards)
+                    foreach (var board in remote_boards)
                     {
                         SendMessage(radio, board, message);
                         Thread.Sleep(1);
@@ -63,15 +62,14 @@ namespace Sandbox
         private static void SendMessage(NRF24L01P Radio, Address Address, byte[] Message)
         {
             Radio.SetReceiveAddressLong(Address, Pipe.Pipe_0);
-            Radio.TransmitAddress = Address;
 
-            int size = Message.Length;
+            Radio.TransmitAddress = Address;
 
             Radio.WorkingMode = Transmit;
 
-            Radio.SendPayload(Message, size, true);
+            Radio.SendPayload(Message, Message.Length, true);
 
-            var status = Radio.PollStatusUntil(s => s.MAX_RT | s.TX_DS);
+            Radio.PollInterruptUntil(Pin.Low, out var status);
 
             Radio.WorkingMode = Receive;
 

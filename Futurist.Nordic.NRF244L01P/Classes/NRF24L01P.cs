@@ -49,11 +49,11 @@ namespace Radio.Nordic.NRF24L01P
         /// </summary>
         public Pin CS
         {
-            set => driver.CS = value;
+            set => driver.CSN = value;
         }
         public Pin CE
         {
-            set => driver.CE = value;
+            set => driver.CEN = value;
         }
         public int Channel { get => channel; }
         public int Interval { get => interval; }
@@ -431,6 +431,16 @@ namespace Radio.Nordic.NRF24L01P
 
             return reg;
         }
+        public void PollInterruptUntil(Pin State, out STATUS Status)
+        {
+            while (driver.IRQ != State)
+            {
+                ;
+            }
+
+            ReadRegister(out Status);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)

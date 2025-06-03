@@ -21,7 +21,7 @@ namespace UnitTests
         }
         public NRF24L01P CreateDevice()
         {
-            var settings = new FT232HSettings() { CSPin = "D3", CEPin = "D4", ClockSpeed = 10_000_000 };
+            var settings = new FT232HSettings() { CSNPin = "D3", CENPin = "D4",  IRQPin = "D5", ClockSpeed = 10_000_000 };
             return NRF24L01P.Create(settings);
         }
         [TestMethod]

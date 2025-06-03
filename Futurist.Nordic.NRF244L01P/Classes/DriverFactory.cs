@@ -24,7 +24,7 @@ namespace Radio.Nordic.NRF24L01P
 
         private static IRadioDriver CreateFT232HDriver(FT232HSettings Settings)
         {
-            return new FT232HDriver(Settings.CSPin, Settings.CEPin, Settings.ClockSpeed);
+            return new FT232HDriver(Settings.CSNPin, Settings.CENPin, Settings.IRQPin, Settings.ClockSpeed);
         }
     }
 
@@ -39,8 +39,9 @@ namespace Radio.Nordic.NRF24L01P
 
     public class FT232HSettings : DriverSettings
     {
-        public required string CSPin { get; set; }
-        public required string CEPin { get; set; }
+        public required string CSNPin { get; set; }
+        public required string CENPin { get; set; }
+        public required string IRQPin { get; set; }
         public int ClockSpeed { get; set; }
     }
 }
